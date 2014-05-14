@@ -1,10 +1,58 @@
-function Get-NetBackupClient
+# NetBackup Client - Agent
+Function Get-NetBackupClientAgent {}
+Function Get-NetBackupClientAgentLogs {}
+Function Install-NetBackupClientAgent {}
+
+
+# NetBackup Server - Logs
+Function Get-NetBackupServerLogs {}
+
+# NetBackup Server - Policy
+Function Add-NetBackupClientToPolicy {}
+Function Get-NetBackupPolicy
 {
 <#
 .Synopsis
-   The function Get-Netbackup
+   The function Get-NetBackupPolicy list all the policies from the Master Server
 .DESCRIPTION
-   Long description
+   The function Get-NetBackupPolicy list all the policies from the Master Server
+#>
+
+PARAM($AllPolicies)    
+    IF ($AllPolicies)
+    {
+        # List the Policies
+        $bppllist = bppllist -allpolicies
+        FOREACH ($policy in $bppllist)
+        {
+            New-Object -TypeName PSObject -Property @{
+                PolicyName = $policy
+            }
+        }
+        
+    }
+    
+    ELSE {
+        # List the Policies
+        $bppllist = bppllist
+        FOREACH ($policy in $bppllist)
+        {
+            New-Object -TypeName PSObject -Property @{
+                PolicyName = $policy
+            }
+        }
+    }
+}
+
+
+# NetBackup Server - Clients Management
+Function Get-NetBackupClients
+{
+<#
+.Synopsis
+   The function Get-NetbackupClients list all the client known from the Master Server
+.DESCRIPTION
+   The function Get-NetbackupClients list all the client known from the Master Server
 #>
 
 
@@ -29,15 +77,10 @@ function Get-NetBackupClient
     }#Foreach
 }
 
-function Get-NetBackupPolicy
-{
+Function Refresh-NetBackupClientsList {}
 
-    # List the Policies
-    $bppllist = bppllist
-    foreach ($policy in $bppllist)
-    {
-        New-Object -TypeName PSObject -Property @{
-            PolicyName = $policy
-        }
-    }
-}
+# NetBackup Server - Backups/Restore
+Function Get-NetBackupBackupJob {PARAM($Backup,$Restore)}
+
+# NetBackup Server - Services
+Function Restart-NetBackupServices {}
