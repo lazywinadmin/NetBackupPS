@@ -1,7 +1,7 @@
 # NetBackup Client - Agent
-Function Get-NetBackupClientAgent {}
-Function Get-NetBackupClientAgentLogs {}
-Function Install-NetBackupClientAgent {}
+Function Get-NetBackupAgent {}
+Function Get-NetBackupAgentLogs {}
+Function Install-NetBackupAgent {}
 
 
 # NetBackup Server - Logs
