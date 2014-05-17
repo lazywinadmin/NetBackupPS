@@ -1,14 +1,4 @@
-# NetBackup Client - Agent
-Function Get-NetBackupAgent {}
-Function Get-NetBackupAgentLogs {}
-Function Install-NetBackupAgent {}
-
-
-# NetBackup Server - Logs
-Function Get-NetBackupServerLogs {}
-
 # NetBackup Server - Policy
-Function Add-NetBackupClientToPolicy {}
 Function Get-NetBackupPolicy
 {
 <#
@@ -44,7 +34,6 @@ PARAM($AllPolicies)
     }
 }
 
-
 # NetBackup Server - Clients Management
 Function Get-NetBackupClients
 {
@@ -77,6 +66,24 @@ Function Get-NetBackupClients
     }#Foreach
 }
 
+Export-ModuleMember -Function *
+
+<#
+#TODO
+
+# NetBackup Client - Agent
+Function Get-NetBackupAgent { }
+Function Get-NetBackupAgentLogs { }
+Function Install-NetBackupAgent { }
+
+
+# NetBackup Server - Logs
+Function Get-NetBackupServerLogs { }
+
+# NetBackup Server - Policy
+Function Add-NetBackupClientToPolicy { }
+
+# NetBackup Server - Clients Management
 Function Refresh-NetBackupClientsList {}
 
 # NetBackup Server - Backups/Restore
@@ -84,3 +91,7 @@ Function Get-NetBackupBackupJob {PARAM($Backup,$Restore)}
 
 # NetBackup Server - Services
 Function Restart-NetBackupServices {}
+
+
+
+#>
