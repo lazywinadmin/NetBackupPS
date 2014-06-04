@@ -215,5 +215,7 @@ Function Get-NetBackupBackupJob {PARAM($Backup,$Restore)}
 Function Restart-NetBackupServices {}
 
 
+See also
+#http://www.storagetutorials.com/most-used-netbackup-commands/
 
 #>
