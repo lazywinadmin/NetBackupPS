@@ -195,15 +195,24 @@ function Get-NetBackupDiskMedia
 .DESCRIPTION
    The function Get-NetbackupDiskMedia list information related to the Disk Media
 .PARAMETER StorageServer
-    Lists all servers that host storage. These include Symantec provided storage
+    Lists all servers that host storage. These include Symantec provided storage.
 .PARAMETER DiskPool
     Lists all imported disk pools in the NetBackup database.
+.PARAMETER Mount
+    Lists the disk mount points for the disk pool.
 .EXAMPLE
     Get-NetBackupDiskMedia -StorageServer
+    
     Lists all servers that host storage. These include Symantec provided storage
 .EXAMPLE
     Get-NetBackupDiskMedia -DiskPool
+    
     Lists all imported disk pools in the NetBackup database.
+    
+.EXAMPLE
+    Get-NetBackupDiskMedia -Mount
+    
+    Lists the disk mount points for the disk pool.
 #>
 
 [CmdletBinding()]
@@ -211,7 +220,9 @@ PARAM(
     [Parameter(ParameterSetName="StorageServer",Mandatory = $true)]
     [Switch]$StorageServer,
     [Parameter(ParameterSetName="DiskPool",Mandatory = $true)]
-    [Switch]$DiskPool
+    [Switch]$DiskPool,
+    [Parameter(ParameterSetName="Mount",Mandatory = $true)]
+    [Switch]$Mount
     )
     
     PROCESS{
@@ -249,7 +260,23 @@ PARAM(
                 }
             }
         }
+        IF ($Mount)
+        {
+            $nbdevquery = (nbdevquery -listmounts) -as [String]
+            foreach ($obj in $nbdevquery -split '\)\s')
+            {
+                $obj = $obj -split '\s+'
+                if ($obj[10] -like "*mounted*"){$mounted = $true}
+                else{$mounted = $false}
+                New-Object -TypeName PSObject -Property @{
+                    DiskPool = $obj[2]
+                    MountPointCount= $obj[4]
+                    SuRep = $obj[7]
+                    StorageServer = $obj[9]
+                    Mounted = $mounted
+                }
+            }
+        }
     }
 }
-
 Export-ModuleMember -Function *
