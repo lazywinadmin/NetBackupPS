@@ -295,15 +295,25 @@ function Get-NetBackupJob
    This function interacts with NetBackup jobs database
 .PARAMETER Summary
     Prints a summary line for all the jobs that are stored in NBU/jobs.
+.PARAMETER Full
+.PARAMETER TimeStamp
 .EXAMPLE
-    Get-NetBackupJob -Summary
+    Get-NetBackupDBjob -Summary
     
     Prints a summary line for all the jobs that are stored in NBU/jobs.
+    
+.EXAMPLE
+    Get-NetBackupJob -Full -TimeStamp ((Get-Date).AddMinutes(-2)
 #>
 [CmdletBinding()]
 PARAM(
     [Parameter(ParameterSetName="Summary",Mandatory = $true)]
-    [Switch]$Summary
+    [Switch]$Summary,
+    [Parameter(ParameterSetName="Full",Mandatory = $true)]
+    [Switch]$Full,
+    [Parameter(ParameterSetName="Full")]
+    [DateTime]$TimeStamp
+    #[Array]$JobId
     )
     PROCESS{
         if ($Summary)
@@ -324,8 +334,25 @@ PARAM(
                 Total = $obj[10]
             }
         }
+        IF ($Full)
+        {
+            IF ($TimeStamp)
+            {
+                $DateTime = $TimeStamp -f 'MM/dd/yyyy hh:mm:ss'
+                (bpdbjobs -all_columns -t $DateTime) | 
+                    ConvertFrom-Csv -Delimiter "," -header jobid,jobtype,state,status,policy,schedule,client,server,started,elapsed,ended,stunit,try,operation,kbytes,files,pathlastwritten,percent,jobpid,owner,subtype,classtype,schedule_type,priority,group,masterserver,retentionunits,retentionperiod,compression,kbyteslastwritten,fileslastwritten,filelistcount,[files],trycount,[trypid,trystunit,tryserver,trystarted,tryelapsed,tryended,trystatus,trystatusdescription,trystatuscount,[trystatuslines],trybyteswritten,tryfileswritten],parentjob,kbpersec,copy,robot,vault,profile,session,ejecttapes,srcstunit,srcserver,srcmedia,dstmedia,stream,suspendable,resumable,restartable,datamovement,snapshot,backupid,killable,controllinghost    
+            }
+            ELSE
+            {
+                (bpdbjobs -all_columns) | 
+                    ConvertFrom-Csv -Delimiter "," -header jobid,jobtype,state,status,policy,schedule,client,server,started,elapsed,ended,stunit,try,operation,kbytes,files,pathlastwritten,percent,jobpid,owner,subtype,classtype,schedule_type,priority,group,masterserver,retentionunits,retentionperiod,compression,kbyteslastwritten,fileslastwritten,filelistcount,[files],trycount,[trypid,trystunit,tryserver,trystarted,tryelapsed,tryended,trystatus,trystatusdescription,trystatuscount,[trystatuslines],trybyteswritten,tryfileswritten],parentjob,kbpersec,copy,robot,vault,profile,session,ejecttapes,srcstunit,srcserver,srcmedia,dstmedia,stream,suspendable,resumable,restartable,datamovement,snapshot,backupid,killable,controllinghost
+            }
+        }#IF $Full
+        IF ($JobId)
+        {
+            #$bpdpjobs = bpdbjobs -jobid 
+        }
     }#PROCESS
 }#function
-
 
 Export-ModuleMember -Function *
