@@ -99,7 +99,11 @@ Function Get-NetBackupClients
 function Get-NetBackupConfiguration
 {
 <#
-	
+.SYNOPSIS
+
+.DESCRIPTION
+
+.EXAMPLE
 #>
 	[CmdletBinding()]
 	PARAM (
@@ -190,7 +194,7 @@ function Get-NetBackupConfiguration
 function Get-NetBackupDiskMedia
 {
 <#
-.Synopsis
+.SYNOPSIS
    The function Get-NetbackupDiskMedia list information related to the Disk Media
 .DESCRIPTION
    The function Get-NetbackupDiskMedia list information related to the Disk Media
@@ -279,4 +283,49 @@ PARAM(
         }
     }
 }
+
+# NetBackup Server - Jobs
+
+function Get-NetBackupDBjob
+{
+<#
+.SYNOPSIS
+   This function interacts with NetBackup jobs database (bpdbjobs)
+.DESCRIPTION
+   This function interacts with NetBackup jobs database
+.PARAMETER Summary
+    Prints a summary line for all the jobs that are stored in NBU/jobs.
+.EXAMPLE
+    Get-NetBackupDBjob -Summary
+    
+    Prints a summary line for all the jobs that are stored in NBU/jobs.
+#>
+[CmdletBinding()]
+PARAM(
+    [Parameter(ParameterSetName="Summary",Mandatory = $true)]
+    [Switch]$Summary
+    )
+    PROCESS{
+        if ($Summary)
+        {
+            $bpdpjobs = bpdbjobs -summary
+            $obj = $bpdpjobs[1] -split '\s+'
+            New-Object -TypeName PSObject -Property @{
+                MasterServer = $obj[0]
+                Queued = $obj[1]
+                Requeued = $obj[2]
+                Active = $obj[3]
+                Success = $obj[4]
+                PartSucc = $obj[5]
+                Failed = $obj[6]
+                Incomplete = $obj[7]
+                Suspended = $obj[8]
+                WaitingRetry = $obj[9]
+                Total = $obj[10]
+            }
+        }
+    }#PROCESS
+}#function
+
+
 Export-ModuleMember -Function *
