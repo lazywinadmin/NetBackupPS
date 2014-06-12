@@ -191,21 +191,28 @@ function Get-NetBackupDiskMedia
 {
 <#
 .Synopsis
-	The function Get-NetbackupDiskMedia list information related to the Disk Media
+   The function Get-NetbackupDiskMedia list information related to the Disk Media
 .DESCRIPTION
-	The function Get-NetbackupDiskMedia list information related to the Disk Media
+   The function Get-NetbackupDiskMedia list information related to the Disk Media
 .PARAMETER StorageServer
-	This switch parameter lists all servers that host storage. These include Symantec provided storage
-	such as PureDisk or SureScale, third-party appliances, and cloud storage such
-	as amazon or nirvanix.
+    Lists all servers that host storage. These include Symantec provided storage
+.PARAMETER DiskPool
+    Lists all imported disk pools in the NetBackup database.
 .EXAMPLE
-	Get-NetBackupDiskMedia -StorageServer
+    Get-NetBackupDiskMedia -StorageServer
+    Lists all servers that host storage. These include Symantec provided storage
+.EXAMPLE
+    Get-NetBackupDiskMedia -DiskPool
+    Lists all imported disk pools in the NetBackup database.
 #>
 
 [CmdletBinding()]
 PARAM(
-    [Parameter(ParameterSetName="A",Mandatory = $true)]
-    [Switch]$StorageServer)
+    [Parameter(ParameterSetName="StorageServer",Mandatory = $true)]
+    [Switch]$StorageServer,
+    [Parameter(ParameterSetName="DiskPool",Mandatory = $true)]
+    [Switch]$DiskPool
+    )
     
     PROCESS{
         IF ($StorageServer)
@@ -222,8 +229,27 @@ PARAM(
                 }
             }
         }
+        IF ($DiskPool)
+        {
+            $nbdevquery = nbdevquery -listdp
+            Foreach ($Obj in $nbdevquery)
+            {
+                $obj = $obj -split "\s"
+                New-Object -TypeName PSObject -Property @{
+                    Version = $Obj[0]
+                    DiskPool = $Obj[1]
+                    Flag1 = $Obj[2]
+                    Flag2 = $Obj[3]
+                    Flag3 = $Obj[4]
+                    Flag4 = $Obj[5]
+                    Flag5 = $Obj[6]
+                    Flag6 = $Obj[7]
+                    Flag7 = $Obj[8]
+                    StorageServer = $Obj[9]
+                }
+            }
+        }
     }
 }
-
 
 Export-ModuleMember -Function *
