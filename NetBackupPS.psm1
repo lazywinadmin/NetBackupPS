@@ -185,6 +185,45 @@ function Get-NetBackupConfiguration
 	}
 }
 
+# NetBackup Server - Disk Media Status
+
+function Get-NetBackupDiskMedia
+{
+<#
+.Synopsis
+	The function Get-NetbackupDiskMedia list information related to the Disk Media
+.DESCRIPTION
+	The function Get-NetbackupDiskMedia list information related to the Disk Media
+.PARAMETER StorageServer
+	This switch parameter lists all servers that host storage. These include Symantec provided storage
+	such as PureDisk or SureScale, third-party appliances, and cloud storage such
+	as amazon or nirvanix.
+.EXAMPLE
+	Get-NetBackupDiskMedia -StorageServer
+#>
+
+[CmdletBinding()]
+PARAM(
+    [Parameter(ParameterSetName="A",Mandatory = $true)]
+    [Switch]$StorageServer)
+    
+    PROCESS{
+        IF ($StorageServer)
+        {
+            $nbdevquery = nbdevquery -liststs
+            Foreach ($Obj in $nbdevquery)
+            {
+                $obj = $obj -split "\s"
+                New-Object -TypeName PSObject -Property @{
+                    Version = $Obj[0]
+                    StorageServer = $Obj[1]
+                    ServerType = $Obj[2]
+                    StorageType = $Obj[3]
+                }
+            }
+        }
+    }
+}
 
 
 Export-ModuleMember -Function *
