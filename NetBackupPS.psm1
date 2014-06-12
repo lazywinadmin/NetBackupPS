@@ -286,7 +286,7 @@ PARAM(
 
 # NetBackup Server - Jobs
 
-function Get-NetBackupDBjob
+function Get-NetBackupJob
 {
 <#
 .SYNOPSIS
@@ -296,7 +296,7 @@ function Get-NetBackupDBjob
 .PARAMETER Summary
     Prints a summary line for all the jobs that are stored in NBU/jobs.
 .EXAMPLE
-    Get-NetBackupDBjob -Summary
+    Get-NetBackupJob -Summary
     
     Prints a summary line for all the jobs that are stored in NBU/jobs.
 #>
