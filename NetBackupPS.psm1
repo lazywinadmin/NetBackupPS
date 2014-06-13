@@ -119,10 +119,19 @@ function Get-NetBackupConfiguration
 {
 <#
 .SYNOPSIS
-
+	Display global configuration attributes for NetBackup
 .DESCRIPTION
-
+	Display global configuration attributes for NetBackup
+.PARAMETER DisplayFormat
+.PARAMETER LongFormat
+.PARAMETER ShortFormat
 .EXAMPLE
+	Get-NetBackupConfiguration -DisplayFormat
+.EXAMPLE
+	Get-NetBackupConfiguration -LongFormat
+.EXAMPLE
+	Get-NetBackupConfiguration -ShortFormat
+	
 #>
 	[CmdletBinding()]
 	PARAM (
@@ -320,9 +329,14 @@ function Get-NetBackupJob
     Get-NetBackupDBjob -Summary
     
     Prints a summary line for all the jobs that are stored in NBU/jobs.
+.EXAMPLE
+    Get-NetBackupJob -Full
     
+    Show all the job in the last three days (default is 3 days)
 .EXAMPLE
     Get-NetBackupJob -Full -TimeStamp ((Get-Date).AddMinutes(-2)
+    
+    Show all the job from the last two minutes
 #>
 [CmdletBinding()]
 PARAM(
