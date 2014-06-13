@@ -322,9 +322,15 @@ function Get-NetBackupJob
 .DESCRIPTION
    This function interacts with NetBackup jobs database
 .PARAMETER Summary
-    Prints a summary line for all the jobs that are stored in NBU/jobs.
+    Output a summary line for all the jobs that are stored in NBU/jobs.
 .PARAMETER Full
+    Output a full report of all the jobs in the last three days
 .PARAMETER TimeStamp
+    Fetches the job records based on the timestamp. Only the job records modified
+    since this timestamp are displayed. The timestamp is specified in the following
+    Must be a DateTime object or can be specified using "mm/dd/yyyy HH:MM:SS" format
+.PARAMETER JobId
+    Reports on one or multiple job IDs
 .EXAMPLE
     Get-NetBackupDBjob -Summary
     
@@ -337,6 +343,16 @@ function Get-NetBackupJob
     Get-NetBackupJob -Full -TimeStamp ((Get-Date).AddMinutes(-2)
     
     Show all the job from the last two minutes
+    
+.EXAMPLE
+    Get-NetBackupJob -JobId 7149678
+    
+    Reports information for the job 7149678
+    
+.EXAMPLE
+    Get-NetBackupJob -JobId 7149678, 7149679
+    
+    Reports information for the job 7149678 and 7149679
 #>
 [CmdletBinding()]
 PARAM(
@@ -345,8 +361,9 @@ PARAM(
     [Parameter(ParameterSetName="Full",Mandatory = $true)]
     [Switch]$Full,
     [Parameter(ParameterSetName="Full")]
-    [DateTime]$TimeStamp
-    #[Array]$JobId
+    [DateTime]$TimeStamp,
+    [Parameter(ParameterSetName="JobID",Mandatory = $true)]
+    [String[]]$JobId
     )
     PROCESS{
         if ($Summary)
@@ -383,7 +400,12 @@ PARAM(
         }#IF $Full
         IF ($JobId)
         {
-            #$bpdpjobs = bpdbjobs -jobid 
+            FOREACH ($JobObj in $jobID)
+            {
+                Write-Verbose -Message "PROCESS - bpdbjobs - JOBID:$jobID"
+                (bpdbjobs -jobid $JobObj -all_columns) | 
+                        ConvertFrom-Csv -Delimiter "," -header jobid,jobtype,state,status,policy,schedule,client,server,started,elapsed,ended,stunit,try,operation,kbytes,files,pathlastwritten,percent,jobpid,owner,subtype,classtype,schedule_type,priority,group,masterserver,retentionunits,retentionperiod,compression,kbyteslastwritten,fileslastwritten,filelistcount,[files],trycount,[trypid,trystunit,tryserver,trystarted,tryelapsed,tryended,trystatus,trystatusdescription,trystatuscount,[trystatuslines],trybyteswritten,tryfileswritten],parentjob,kbpersec,copy,robot,vault,profile,session,ejecttapes,srcstunit,srcserver,srcmedia,dstmedia,stream,suspendable,resumable,restartable,datamovement,snapshot,backupid,killable,controllinghost
+            }
         }
     }#PROCESS
 }#function
