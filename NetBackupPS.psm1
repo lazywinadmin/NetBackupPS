@@ -77,13 +77,17 @@ Function Get-NetBackupPolicy
 
 # NetBackup Server - Clients Management
 
-Function Get-NetBackupClients
+Function Get-NetBackupClient
 {
 <#
 .Synopsis
-   The function Get-NetbackupClients list all the client known from the Master Server
+   The function Get-NetbackupClient list all the client known from the Master Server
 .DESCRIPTION
-   The function Get-NetbackupClients list all the client known from the Master Server
+   The function Get-NetbackupClient list all the client known from the Master Server
+.EXAMPLE
+	Get-NetBackupClient
+	
+	List all the clients registered in NetBackup Database
 #>
 	
 	
@@ -108,6 +112,7 @@ Function Get-NetBackupClients
 		}
 	}#Foreach
 }
+
 
 # NetBackup Server - Global Configuration
 function Get-NetBackupConfiguration
