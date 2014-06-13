@@ -39,7 +39,7 @@ Function Get-NetBackupPolicy
 	IF ($AllPolicies)
 	{
 		# List the Policies
-		$bppllist = bppllist -allpolicies
+		$bppllist = (bppllist -allpolicies) -as [String]
 		
 		# Split the Policies
 		$bppllist = $bppllist -split "CLASS\s"
