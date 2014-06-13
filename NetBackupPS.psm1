@@ -2,16 +2,27 @@
 Function Get-NetBackupPolicy
 {
 <#
-.Synopsis
+.SYNOPSIS
    The function Get-NetBackupPolicy list all the policies from the Master Server
 .DESCRIPTION
    The function Get-NetBackupPolicy list all the policies from the Master Server
+.PARAMETER AllPolicies
+	List all the Policies with all properties
+.EXAMPLE
+	Get-NetBackupPolicy
+	
+	List all the policies name
+.EXAMPLE
+	Get-NetBackupPolicy -AllPolicies
+	
+	List all the Policies with all properties
 #>
+
 	[CmdletBinding()]
 	PARAM (
 		[parameter(ParameterSetName = "AllPolicies")]
-		[switch]$AllPolicies,
-		[parameter(ParameterSetName = "hwos")]
+		[switch]$AllPolicies
+	<#	[parameter(ParameterSetName = "hwos")]
 		[switch]$HardwareAndOS,
 		[parameter(ParameterSetName = "FullListing")]
 		[switch]$FullListing,
@@ -20,7 +31,9 @@ Function Get-NetBackupPolicy
 		[parameter(ParameterSetName = "byclient", Mandatory)]
 		[Switch]$ByClient,
 		[parameter(ParameterSetName = "byclient", Mandatory)]
-		[String]$ClientName)
+		[String]$ClientName
+	#>
+		)
 	
 	Write-Verbose -Message "NetBackup - BPPLLIST - List policy information"
 	IF ($AllPolicies)
@@ -63,6 +76,7 @@ Function Get-NetBackupPolicy
 }
 
 # NetBackup Server - Clients Management
+
 Function Get-NetBackupClients
 {
 <#
