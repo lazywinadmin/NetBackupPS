@@ -436,7 +436,7 @@ PARAM($PoolName)
             # Get rid of empty spaces and replace by :
             $OutputInfo = $OutputInfo -replace ":\s+",":"
 
-            # Add a comma at the end of each line to delimit each object
+            # Add a comma at the end of each line to delimit each object (this is needed when the object $outputinfo is converted to STRING)
             $OutputInfo = $OutputInfo -replace "\Z",","
 
             # Convert to [string]
