@@ -408,6 +408,76 @@ PARAM(
             }
         }
     }#PROCESS
-}#function
+}#function Get-NetBackupJob
+
+function Get-NetBackupVolume
+{
+<#
+.SYNOPSIS
+   This function queries the EMM database for volume information (vmquery)
+.DESCRIPTION
+   This function queries the EMM database for volume information (vmquery)
+.PARAMETER PoolName
+    Specify the PoolName you want to query
+.EXAMPLE
+    Get-NetBackupVolume -PoolName Scratch
+    
+    This will return all the volumes in the Pool named Scratch
+#>
+[CmdletBinding()]
+PARAM($PoolName)
+    PROCESS
+    {
+        IF($PoolName)
+        {
+            Write-Verbose -Message "PROCESS - vmquery on $poolname"
+            $OutputInfo = (vmquery -pn $PoolName)
+            
+            # Get rid of empty spaces and replace by :
+            $OutputInfo = $OutputInfo -replace ":\s+",":"
+
+            # Add a comma at the end of each line to delimit each object
+            $OutputInfo = $OutputInfo -replace "\Z",","
+
+            # Convert to [string]
+            $OutputInfo = ($OutputInfo -split "================================================================================,") -as [String]
+     
+            foreach ($obj in $OutputInfo)
+            {
+                $obj = $obj -split ","
+                New-Object -TypeName PSObject -Property @{
+                    MediaID = ($obj[0] -split ":")[1]
+                    MediaType = ($obj[1] -split ":")[1]
+                    Barcode = ($obj[2] -split ":")[1]
+                    MediaDescription = ($obj[3] -split ":")[1]
+                    VolumePool = ($obj[4] -split ":")[1]
+                    RobotType = ($obj[5] -split ":")[1]
+                    VolumeGroup = ($obj[6] -split ":")[1]
+                    VaultName = ($obj[7] -split ":")[1]
+                    VaultSent = ($obj[8] -split ":")[1]
+                    VaultReturn = ($obj[9] -split ":")[1]
+                    VaultSlot = ($obj[10] -split ":")[1]
+                    VaultSession = ($obj[11] -split ":")[1]
+                    VaultContainer = ($obj[12] -split ":")[1]
+                    Created = ($obj[13] -split ":")[1]
+                    Assigned = ($obj[14] -split ":")[1]
+                    LastMounted = ($obj[15] -split ":")[1]
+                    FirstMount = ($obj[16] -split ":")[1]
+                    ExpirationDate = ($obj[17] -split ":")[1]
+                    NumberOfMounts = ($obj[18] -split ":")[1]
+                    MacMountsAllowed = ($obj[19] -split ":")[1]
+                }#new-Object
+            
+                #$obj = $obj -replace "\s\s+","" 
+                #$obj = $obj -split "`n" -replace ":\s+","=" | ConvertFrom-StringData
+                #$obj = ($obj -replace ":\s+","=" | ConvertFrom-StringData)
+                #New-Object -TypeName PSObject -Property @{
+                #    MediaID = $obj["media ID"]
+                #    MediaType = $obj["media type"]
+                #    BarCode = $obj["barcode"]
+            }#foreach
+        }#IF $Poolname
+    }#process
+}#function Get-NetBackupVolume
 
 Export-ModuleMember -Function *
