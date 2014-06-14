@@ -31,3 +31,4 @@ The goal of this module is to create Cmdlets around the available Cli tools made
 
  * See also
   * http://www.storagetutorials.com/most-used-netbackup-commands/
+  * http://www.symantec.com/connect/blogs/netbackup-processes-and-commands
