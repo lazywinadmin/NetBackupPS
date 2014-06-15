@@ -427,6 +427,70 @@ function Get-NetBackupVolume
     Get-NetBackupVolume -PoolName Scratch
     
     This will return all the volumes in the Pool named Scratch
+    
+VaultName        : ---
+VaultSessionID   : ---
+MacMountsAllowed : ---
+AssignedDate     : ---
+LastMountedDate  : ---
+FirstMount       : ---
+VolumePool       : Scratch (4)
+MediaDescription : ---
+VaultSlot        : ---
+ExpirationDate   : ---
+NumberOfMounts   : 0
+VaultContainerID : -
+Created          : 18/12/2012 4
+Barcode          : WT0161L3
+VaultSentDate    : ---
+RobotType        : NONE - Not Robotic (0)
+VaultReturnDate  : ---
+VolumeGroup      : ---
+MediaType        : 1/2" cartridge tape 3 (24)
+MediaID          : WT0161
+
+VaultName        : ---
+VaultSessionID   : ---
+MacMountsAllowed : ---
+AssignedDate     : ---
+LastMountedDate  : ---
+FirstMount       : ---
+VolumePool       : Scratch (4)
+MediaDescription : ---
+VaultSlot        : ---
+ExpirationDate   : ---
+NumberOfMounts   : 0
+VaultContainerID : -
+Created          : 19/12/2012 4
+Barcode          : WT0166L3
+VaultSentDate    : ---
+RobotType        : NONE - Not Robotic (0)
+VaultReturnDate  : ---
+VolumeGroup      : ---
+MediaType        : 1/2" cartridge tape 3 (24)
+MediaID          : WT0166
+
+VaultName        : ---
+VaultSessionID   : ---
+MacMountsAllowed : ---
+AssignedDate     : ---
+LastMountedDate  : ---
+FirstMount       : ---
+VolumePool       : Scratch (4)
+MediaDescription : ---
+VaultSlot        : ---
+ExpirationDate   : ---
+NumberOfMounts   : 0
+VaultContainerID : -
+Created          : 16/04/2013 3
+Barcode          : WT0191L3
+VaultSentDate    : ---
+RobotType        : NONE - Not Robotic (0)
+VaultReturnDate  : ---
+VolumeGroup      : ---
+MediaType        : 1/2" cartridge tape 3 (24)
+MediaID          : WT0191
+    
 .EXAMPLE
     Get-NetBackupVolume -MediaID CC0002,DD0005
     
