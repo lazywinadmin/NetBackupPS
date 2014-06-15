@@ -410,6 +410,8 @@ PARAM(
     }#PROCESS
 }#function Get-NetBackupJob
 
+
+# NetBackup Server - Volume
 function Get-NetBackupVolume
 {
 <#
@@ -419,18 +421,72 @@ function Get-NetBackupVolume
    This function queries the EMM database for volume information (vmquery)
 .PARAMETER PoolName
     Specify the PoolName you want to query
+.PARAMETER MediaID
+    Specify the MediaID(s) to display
 .EXAMPLE
     Get-NetBackupVolume -PoolName Scratch
     
     This will return all the volumes in the Pool named Scratch
+.EXAMPLE
+    Get-NetBackupVolume -MediaID CC0002,DD0005
+    
+    This will display information for the tapes CC0002,DD0005
+
+VaultName        : fx1
+VaultSessionID   : 169
+MacMountsAllowed : ---
+AssignedDate     : ---
+LastMounted      : 30/03/2013 4
+VolumePool       : Scratch (4)
+MediaDescription : ---
+VaultSlot        : 34
+ExpirationDate   : ---
+NumberOfMounts   : 17
+VaultContainerID : -
+CreatedDate      : 10/01/2013 1
+Barcode          : CC0002L5
+VaultSentDate    : 02/04/2013 12
+RobotType        : NONE - Not Robotic (0)
+VaultReturnDate  : ---
+VolumeGroup      : fx1_offsite
+MediaType        : 1/2" cartridge tape 3 (24)
+FirstMount       : 15/01/2013 6
+MediaID          : CC0002
+
+VaultName        : tapedepot
+VaultSessionID   : 497
+MacMountsAllowed : ---
+AssignedDate     : ---
+LastMounted      : 08/01/2014 2
+VolumePool       : Scratch (4)
+MediaDescription : ---
+VaultSlot        : 341
+ExpirationDate   : ---
+NumberOfMounts   : 11
+VaultContainerID : -
+CreatedDate      : 09/10/2013 8
+Barcode          : DD0005L3
+VaultSentDate    : 08/01/2014 4
+RobotType        : NONE - Not Robotic (0)
+VaultReturnDate  : 22/02/2014 6
+VolumeGroup      : fx1_offsite
+MediaType        : 1/2" cartridge tape 3 (24)
+FirstMount       : 14/10/2013 2
+MediaID          : DD0005
 #>
 [CmdletBinding()]
-PARAM($PoolName)
+PARAM(
+    [Parameter(ParameterSetName="PoolName",Mandatory = $true)]
+    [String]$PoolName,
+    [Parameter(ParameterSetName="MediaID",Mandatory = $true)]
+    [ValidateLength(1,6)]
+    [String[]]$MediaID
+    )
     PROCESS
     {
-        IF($PoolName)
+        IF ($PoolName)
         {
-            Write-Verbose -Message "PROCESS - vmquery on $poolname"
+            Write-Verbose -Message "PROCESS - vmquery on PoolName: $poolname"
             $OutputInfo = (vmquery -pn $PoolName)
             
             # Get rid of empty spaces and replace by :
@@ -439,9 +495,12 @@ PARAM($PoolName)
             # Add a comma at the end of each line to delimit each object (this is needed when the object $outputinfo is converted to STRING)
             $OutputInfo = $OutputInfo -replace "\Z",","
 
-            # Convert to [string]
-            $OutputInfo = ($OutputInfo -split "================================================================================,") -as [String]
-     
+            #Convert to [string]
+            $OutputInfo = $OutputInfo -as [string]
+
+            # Split each object
+            $OutputInfo = $OutputInfo -split "================================================================================,"
+
             foreach ($obj in $OutputInfo)
             {
                 $obj = $obj -split ","
@@ -454,30 +513,73 @@ PARAM($PoolName)
                     RobotType = ($obj[5] -split ":")[1]
                     VolumeGroup = ($obj[6] -split ":")[1]
                     VaultName = ($obj[7] -split ":")[1]
-                    VaultSent = ($obj[8] -split ":")[1]
-                    VaultReturn = ($obj[9] -split ":")[1]
+                    VaultSentDate = ($obj[8] -split ":")[1]
+                    VaultReturnDate = ($obj[9] -split ":")[1]
                     VaultSlot = ($obj[10] -split ":")[1]
-                    VaultSession = ($obj[11] -split ":")[1]
-                    VaultContainer = ($obj[12] -split ":")[1]
+                    VaultSessionID = ($obj[11] -split ":")[1]
+                    VaultContainerID = ($obj[12] -split ":")[1]
                     Created = ($obj[13] -split ":")[1]
-                    Assigned = ($obj[14] -split ":")[1]
-                    LastMounted = ($obj[15] -split ":")[1]
+                    AssignedDate = ($obj[14] -split ":")[1]
+                    LastMountedDate = ($obj[15] -split ":")[1]
                     FirstMount = ($obj[16] -split ":")[1]
                     ExpirationDate = ($obj[17] -split ":")[1]
                     NumberOfMounts = ($obj[18] -split ":")[1]
                     MacMountsAllowed = ($obj[19] -split ":")[1]
                 }#new-Object
-            
-                #$obj = $obj -replace "\s\s+","" 
-                #$obj = $obj -split "`n" -replace ":\s+","=" | ConvertFrom-StringData
-                #$obj = ($obj -replace ":\s+","=" | ConvertFrom-StringData)
-                #New-Object -TypeName PSObject -Property @{
-                #    MediaID = $obj["media ID"]
-                #    MediaType = $obj["media type"]
-                #    BarCode = $obj["barcode"]
             }#foreach
         }#IF $Poolname
+
+        IF ($MediaID)
+        {
+            FOREACH ($Media in $MediaID)
+            {
+                TRY{
+                    Write-Verbose -Message "PROCESS - vmquery on MediaID: $Media"
+                    #$OutputInfo = Invoke-command -ScriptBlock {(vmquery -m $Media 2>"$env:temp\netuser.err")}
+                    $OutputInfo = vmquery -m $Media 2>"$env:temp\vmquery_media.err"
+                    # Remove first and last line
+                    $OutputInfo = $OutputInfo[1..($OutputInfo.count - 2)]
+                
+                    # Get rid of empty spaces and replace by :
+                    $OutputInfo = $OutputInfo -replace ":\s+",":"
+
+                    # Add a comma at the end of each line to delimit each object (this is needed when the object $outputinfo is converted to STRING)
+                    $OutputInfo = $OutputInfo -replace "\Z",","
+
+                    # Convert to String
+                    $OutputInfo = $OutputInfo -as [String]
+
+                    # Split on comma
+                    $OutputInfo = $OutputInfo -split ","
+
+                    New-Object -TypeName PSObject -Property @{
+                        MediaID = ($OutputInfo[0] -split ":")[1]
+                        MediaType = ($OutputInfo[1] -split ":")[1]
+                        Barcode = ($OutputInfo[2] -split ":")[1]
+                        MediaDescription = ($OutputInfo[3] -split ":")[1]
+                        VolumePool = ($OutputInfo[4] -split ":")[1]
+                        RobotType = ($OutputInfo[5] -split ":")[1]
+                        VolumeGroup = ($OutputInfo[6] -split ":")[1]
+                        VaultName = ($OutputInfo[7] -split ":")[1]
+                        VaultSentDate = ($OutputInfo[8] -split ":")[1]
+                        VaultReturnDate = ($OutputInfo[9] -split ":")[1]
+                        VaultSlot = ($OutputInfo[10] -split ":")[1]
+                        VaultSessionID = ($OutputInfo[11] -split ":")[1]
+                        VaultContainerID = ($OutputInfo[12] -split ":")[1]
+                        CreatedDate = ($OutputInfo[13] -split ":")[1]
+                        AssignedDate = ($OutputInfo[14] -split ":")[1]
+                        LastMounted = ($OutputInfo[15] -split ":")[1]
+                        FirstMount = ($OutputInfo[16] -split ":")[1]
+                        ExpirationDate = ($OutputInfo[17] -split ":")[1]
+                        NumberOfMounts = ($OutputInfo[18] -split ":")[1]
+                        MacMountsAllowed = ($OutputInfo[19] -split ":")[1]
+                    }#new-Object
+                }
+                CATCH{
+                    Write-Warning -Message "PROCESS - Error on MediaID: $Media"
+                }
+            }#FOREACH ($Media in $MediaID)
+        }#IF $MediaID
     }#process
 }#function Get-NetBackupVolume
-
 Export-ModuleMember -Function *
