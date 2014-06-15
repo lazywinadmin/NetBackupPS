@@ -646,4 +646,34 @@ PARAM(
         }#IF $MediaID
     }#process
 }#function Get-NetBackupVolume
+
+
+function Get-NetBackupProcess
+{
+    PROCESS{
+    $bpps = bpps
+    $bpps_server = ($bpps[0] -split "\s")[1]
+    $bpps = $bpps[2..$bpps.count]
+
+        foreach ($obj in $bpps)
+        {
+            $obj = $obj -split "\s{2,}"
+            New-Object -TypeName PSObject -Property @{
+                Name = $obj[0]
+                Pid = $obj[1]
+                Load = $obj[2]
+                Time = $obj[3]
+                MemMB = $obj[4] -replace "M",""
+                Start = $obj[5]
+            
+            }
+        }
+
+    }
+
+}
+
+
+
+
 Export-ModuleMember -Function *
