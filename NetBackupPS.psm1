@@ -420,7 +420,9 @@ function Get-NetBackupVolume
 .DESCRIPTION
    This function queries the EMM database for volume information (vmquery)
 .PARAMETER PoolName
-    Specify the PoolName you want to query
+    Specify the PoolName to query
+.PARAMETER RobotNumber
+    Specify the RobotNumber to query
 .PARAMETER MediaID
     Specify the MediaID(s) to display
 .EXAMPLE
@@ -537,18 +539,133 @@ VolumeGroup      : fx1_offsite
 MediaType        : 1/2" cartridge tape 3 (24)
 FirstMount       : 14/10/2013 2
 MediaID          : DD0005
+
+.EXAMPLE
+    Get-NetBackupVolume -RobotNumber 23 -Poolname Scratch
+
+    This will return the volumes in the PoolName 'Scratch' for the RobotNumber 23.
+
+.EXAMPLE
+    Get-NetBackupVolume -RobotNumber 23,19 -Poolname Scratch -Verbose
+
+    This will return the volumes in the PoolName 'Scratch' for the RobotNumber 23 and 19.
+    It will additionally show the verbose messages/comments.
 #>
-[CmdletBinding()]
+[CmdletBinding(DefaultParametersetName="MediaID")]
 PARAM(
-    [Parameter(ParameterSetName="PoolName",Mandatory = $true)]
+    [Parameter(ParameterSetName="PoolName")]
     [String]$PoolName,
+    [Parameter(ParameterSetName="PoolName")]
+    [Int[]]$RobotNumber,
     [Parameter(ParameterSetName="MediaID",Mandatory = $true)]
     [ValidateLength(1,6)]
     [String[]]$MediaID
     )
+
     PROCESS
     {
-        IF ($PoolName)
+        
+        IF ($RobotNumber -and $PoolName)
+        {
+            FOREACH ($RobotNo in $RobotNumber)
+            {
+                Write-Verbose -Message "PROCESS - vmquery on RobotNumber $RobotNo and PoolName $PoolName"
+                $OutputInfo = (vmquery -rn $RobotNo)
+                # Get rid of empty spaces and replace by :
+                $OutputInfo = $OutputInfo -replace ":\s+",":"
+
+                # Add a comma at the end of each line to delimit each object (this is needed when the object $outputinfo is converted to STRING)
+                $OutputInfo = $OutputInfo -replace "\Z",","
+
+                #Convert to [string]
+                $OutputInfo = $OutputInfo -as [string]
+
+                # Split each object
+                $OutputInfo = $OutputInfo -split "================================================================================,"
+
+                foreach ($obj in $OutputInfo)
+                {
+                    $obj = $obj -split ","
+                    New-Object -TypeName PSObject -Property @{
+                        MediaID = ($obj[0] -split ":")[1]
+                        MediaType = ($obj[1] -split ":")[1]
+                        Barcode = ($obj[2] -split ":")[1]
+                        MediaDescription = ($obj[3] -split ":")[1]
+                        VolumePool = ($obj[4] -split ":")[1]
+                        RobotType = ($obj[5] -split ":")[1]
+                        RobotNumber = ($obj[6] -split ":")[1]
+                        RobotSlot = ($obj[7] -split ":")[1]
+                        RobotControlHost = ($obj[8] -split ":")[1]
+                        VolumeGroup = ($obj[9] -split ":")[1]
+                        VaultName = ($obj[10] -split ":")[1]
+                        VaultSentDate = ($obj[11] -split ":")[1]
+                        VaultReturnDate = ($obj[12] -split ":")[1]
+                        VaultSlot = ($obj[13] -split ":")[1]
+                        VaultSessionID = ($obj[14] -split ":")[1]
+                        VaultContainerID = ($obj[15] -split ":")[1]
+                        CreatedDate = ($obj[16] -split ":")[1]
+                        AssignedDate = ($obj[17] -split ":")[1]
+                        FirstMountDate = ($obj[18] -split ":")[1]
+                        ExpirationDate = ($obj[19] -split ":")[1]
+                        NumberOfMounts = ($obj[20] -split ":")[1]
+                        MacMountsAllowed = ($obj[21] -split ":")[1]
+                        Status = ($obj[22] -split ":")[1]
+                    } | Where-Object {$_.VolumePool -like "*$PoolName*"}
+                }#foreach ($obj in $OutputInfo)
+            }# FOREACH ($RobotNo in $RobotNumber)
+        } #IF ($RobotNumber -and $PoolName)
+        
+        IF ($RobotNumber -and -not($PoolName))
+        {
+            FOREACH ($RobotNo in $RobotNumber)
+            {
+                Write-Verbose -Message "PROCESS - vmquery on RobotNumber $RobotNo"
+                $OutputInfo = (vmquery -rn $RobotNo)
+                # Get rid of empty spaces and replace by :
+                $OutputInfo = $OutputInfo -replace ":\s+",":"
+
+                # Add a comma at the end of each line to delimit each object (this is needed when the object $outputinfo is converted to STRING)
+                $OutputInfo = $OutputInfo -replace "\Z",","
+
+                #Convert to [string]
+                $OutputInfo = $OutputInfo -as [string]
+
+                # Split each object
+                $OutputInfo = $OutputInfo -split "================================================================================,"
+
+                foreach ($obj in $OutputInfo)
+                {
+                    $obj = $obj -split ","
+                    New-Object -TypeName PSObject -Property @{
+                        MediaID = ($obj[0] -split ":")[1]
+                        MediaType = ($obj[1] -split ":")[1]
+                        Barcode = ($obj[2] -split ":")[1]
+                        MediaDescription = ($obj[3] -split ":")[1]
+                        VolumePool = ($obj[4] -split ":")[1]
+                        RobotType = ($obj[5] -split ":")[1]
+                        RobotNumber = ($obj[6] -split ":")[1]
+                        RobotSlot = ($obj[7] -split ":")[1]
+                        RobotControlHost = ($obj[8] -split ":")[1]
+                        VolumeGroup = ($obj[9] -split ":")[1]
+                        VaultName = ($obj[10] -split ":")[1]
+                        VaultSentDate = ($obj[11] -split ":")[1]
+                        VaultReturnDate = ($obj[12] -split ":")[1]
+                        VaultSlot = ($obj[13] -split ":")[1]
+                        VaultSessionID = ($obj[14] -split ":")[1]
+                        VaultContainerID = ($obj[15] -split ":")[1]
+                        CreatedDate = ($obj[16] -split ":")[1]
+                        AssignedDate = ($obj[17] -split ":")[1]
+                        FirstMountDate = ($obj[18] -split ":")[1]
+                        ExpirationDate = ($obj[19] -split ":")[1]
+                        NumberOfMounts = ($obj[20] -split ":")[1]
+                        MacMountsAllowed = ($obj[21] -split ":")[1]
+                        Status = ($obj[22] -split ":")[1]
+                    }#new-Object
+                }#foreach
+            }#FOREACH ($RobotNo in $RobotNumber)
+        }# IF ($RobotNumber -and -not($PoolName))
+
+        IF ($PoolName -and -not($RobotNumber))
         {
             Write-Verbose -Message "PROCESS - vmquery on PoolName: $poolname"
             $OutputInfo = (vmquery -pn $PoolName)
@@ -582,7 +699,7 @@ PARAM(
                     VaultSlot = ($obj[10] -split ":")[1]
                     VaultSessionID = ($obj[11] -split ":")[1]
                     VaultContainerID = ($obj[12] -split ":")[1]
-                    Created = ($obj[13] -split ":")[1]
+                    CreatedDate = ($obj[13] -split ":")[1]
                     AssignedDate = ($obj[14] -split ":")[1]
                     LastMountedDate = ($obj[15] -split ":")[1]
                     FirstMount = ($obj[16] -split ":")[1]
