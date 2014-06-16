@@ -115,7 +115,7 @@ Function Get-NetBackupClient
 
 
 # NetBackup Server - Global Configuration
-function Get-NetBackupConfiguration
+function Get-NetBackupGlobalConfiguration
 {
 <#
 .SYNOPSIS
@@ -126,11 +126,11 @@ function Get-NetBackupConfiguration
 .PARAMETER LongFormat
 .PARAMETER ShortFormat
 .EXAMPLE
-	Get-NetBackupConfiguration -DisplayFormat
+	Get-NetBackupGlobalConfiguration -DisplayFormat
 .EXAMPLE
-	Get-NetBackupConfiguration -LongFormat
+	Get-NetBackupGlobalConfiguration -LongFormat
 .EXAMPLE
-	Get-NetBackupConfiguration -ShortFormat
+	Get-NetBackupGlobalConfiguration -ShortFormat
 	
 #>
 	[CmdletBinding()]
@@ -215,7 +215,92 @@ function Get-NetBackupConfiguration
 			PolicyUpdateInterval = $bpconfig[16]
 		}
 	}
-}
+}#Get-NetBackupGlobalConfiguration
+
+function Get-NetBackupTapeConfiguration
+{
+<#
+.SYNOPSIS
+    This function displays the Tape Configuration (tpconfig)
+.DESCRIPTION
+    This function displays the Tape Configuration (tpconfig)
+.PARAMETER VirtualMachineCredential
+    Display the Virtual Machine Credential(s) added to NetBackup
+.EXAMPLE
+    Get-NetBackupTapeConfiguration -VirtualMachineCredential
+    
+    Display the Virtual Machine Credential(s) added to NetBackup
+
+SubType                : 1
+SubTypeName            : VMware
+VirtualMachineHostType : VMware Virtual Center Server
+UserID                 : fx\vm_netbackup
+RequiredPort           : 0
+VirtualMachineHostName : fx-vcenter
+
+SubType                : 1
+SubTypeName            : VMware
+VirtualMachineHostType : VMware Virtual Center Server
+UserID                 : fx\vm_netbackup
+RequiredPort           : 0
+VirtualMachineHostName : fx-vcenter02
+
+SubType                : 1
+SubTypeName            : VMware
+VirtualMachineHostType : VMware Virtual Center Server
+UserID                 : fx\vm_netbackup
+RequiredPort           : 0
+VirtualMachineHostName : fx-vcenter03
+
+#>
+[CmdletBinding()]
+PARAM(
+    [Parameter(ParameterSetName="VMCred",Mandatory = $true)]
+    [Switch]$VirtualMachineCredential
+    )
+    PROCESS
+    {
+        IF ($VirtualMachineCredential)
+        {
+         Write-Verbose -Message "PROCESS - Getting VirtualMachine Credentials"
+            $OutputInfo = (tpconfig -dvirtualmachines)
+            
+            # Get rid of empty spaces and replace by :
+            $OutputInfo = $OutputInfo -replace ":\s+",":"
+
+            # Add a comma at the end of each line to delimit each object (this is needed when the object $outputinfo is converted to STRING)
+            $OutputInfo = $OutputInfo -replace "\Z",","
+
+            #Convert to [string]
+            $OutputInfo = $OutputInfo -as [string]
+
+            # Split each object
+            $OutputInfo = $OutputInfo -split "==============================================================================,"
+            #$OutputInfo = $OutputInfo -split "================================================================================,"
+
+            $OutputInfo = ($OutputInfo[1..($OutputInfo.count-1)])
+
+            FOREACH ($obj in $OutputInfo)
+            {
+                $obj = $obj -split ","
+                $SubTypeName = switch (($obj[2] -split ":")[1]) {
+                                "(1)" {"VMware"}
+                                "(2)" {"VMware ESX Servers"}
+                                "(3)" {"VMware Converter Servers"}
+                                }
+                New-Object -TypeName PSObject -Property @{
+                    VirtualMachineHostName = ($obj[0] -split ":")[1]
+                    VirtualMachineHostType = ($obj[1] -split ":")[1]
+                    SubType = ($obj[2] -split ":")[1][1]
+                    SubTypeName = $SubTypeName
+                    UserID = ($obj[3] -split ":")[1]
+                    RequiredPort = ($obj[4] -split ":")[1]
+                } #NEW-OBJET
+            } #FOREACH
+        }#IF
+    }#PROCESS
+}#Get-NetBackupTapeConfiguration
+
 
 # NetBackup Server - Disk Media Status
 
@@ -765,6 +850,9 @@ PARAM(
 }#function Get-NetBackupVolume
 
 
+
+
+
 function Get-NetBackupProcess
 {
     PROCESS{
@@ -789,6 +877,8 @@ function Get-NetBackupProcess
     }
 
 }
+
+
 
 
 
