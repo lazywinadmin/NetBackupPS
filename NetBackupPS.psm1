@@ -855,29 +855,236 @@ PARAM(
 
 function Get-NetBackupProcess
 {
+<#
+.SYNOPSIS
+   This function list all processes and statistics for each process (bpps)
+.DESCRIPTION
+   This function list all processes and statistics for each process (bpps)
+.PARAMETER ProcessGroup
+    Specify the ProcessGroup to query, below are the ProcessGroups available:
+
+MM_ALL
+    All Media Manager processes.
+MM_CLIS
+    Media Manager command line programs.
+MM_CORE
+    Media Manager core processes.
+MM_GUIS
+    Media Manager GUI programs.
+MM_SERVICES
+    Media Manager services.
+MM_UIS
+    Media Manager user interface programs.
+MM_WORKERS
+    Media Manager worker processes.
+NB_ALL
+    All NetBackup, Media Manager, and ARO processes.
+NB_ALL_CLIS
+    All NetBackup and Media Manager command line programs.
+NB_ALL_CORE
+    All NetBackup, Media Manager, and ARO core processes.
+NB_ALL_GUIS
+    All NetBackup and Media Manager GUI programs.
+NB_ALL_SERVICES
+    All NetBackup and Media Manager Services.
+NB_ALL_UIS
+    All NetBackup and Media Manager user interface programs.
+NB_ALL_WORKERS
+    All NetBackup and Media Manager worker processes.
+NB_CLIENT_ALL
+    All NetBackup client processes.
+NB_CLIENT_CLIS
+    NetBackup client command line programs.
+NB_CLIENT_CORE
+    NetBackup client core processes.
+NB_CLIENT_GUIS
+    NetBackup client GUI programs.
+NB_CLIENT_SERVICES
+    NetBackup client services.
+NB_CLIENT_UIS
+    NetBackup client user interface p
+NB_CLIENT_WORKERS
+    NetBackup client worker processes.
+NB_SERVER_ALL
+    All NetBackup Server processes.
+NB_SERVER_CLIS
+    NetBackup Server command line programs.
+NB_SERVER_CORE
+    NetBackup Server core processes.
+NB_SERVER_GUIS
+    NetBackup Server GUI programs.
+NB_SERVER_SERVICES
+    NetBackup Server services.
+NB_SERVER_UIS
+    NetBackup Server user interface programs.
+NB_SERVER_WORKERS
+    NetBackup Server worker processes.
+NBDB_SERVICES
+    NetBackup Database services.
+NBDB_CLIS
+    NetBackup Database command line programs.
+NBDB_ALL
+    All NetBackup Database processes.
+VLT_CORE
+    Core Vault processes.
+VLT_GUIS
+    Vault GUI programs.
+VLT_CLIS
+    Vault command line programs.
+VLT_UIS
+    Vault user interface programs.
+VLT_ALL
+    All Vault processes.
+OTHER_PROCESSES
+    All processes not included in NB_ALL
+
+.PARAMETER ComputerName
+    Specify one or more NetBackup Server(s) to query
+
+.EXAMPLE
+    Get-NetBackupProcess -ProcessGroup MM_ALL -ComputerName Server01, Server02
+#>
+[CmdletBinding()]
+PARAM(
+    [Parameter()]
+    [ValidateSet(
+        "MM_ALL",
+        "MM_CLIS",
+        "MM_CORE",
+        "MM_GUIS",
+        "MM_SERVICES",
+        "MM_UIS",
+        "MM_WORKERS",
+        "NB_ALL",
+        "NB_ALL_CLIS",
+        "NB_ALL_CORE",
+        "NB_ALL_GUIS",
+        "NB_ALL_SERVICES",
+        "NB_ALL_UIS",
+        "NB_ALL_WORKERS",
+        "NB_CLIENT_ALL",
+        "NB_CLIENT_CLIS",
+        "NB_CLIENT_CORE",
+        "NB_CLIENT_GUIS",
+        "NB_CLIENT_SERVICES",
+        "NB_CLIENT_UIS",
+        "NB_CLIENT_WORKERS",
+        "NB_SERVER_ALL",
+        "NB_SERVER_CLIS",
+        "NB_SERVER_CORE",
+        "NB_SERVER_GUIS",
+        "NB_SERVER_SERVICES",
+        "NB_SERVER_UIS",
+        "NB_SERVER_WORKERS",
+        "NBDB_SERVICES",
+        "NBDB_CLIS",
+        "NBDB_ALL",
+        "VLT_CORE",
+        "VLT_GUIS",
+        "VLT_CLIS",
+        "VLT_UIS",
+        "VLT_ALL",
+        "OTHER_PROCESSES")]
+    [String]$ProcessGroup,
+    [String[]]$ComputerName
+)
     PROCESS{
-    $bpps = bpps
-    $bpps_server = ($bpps[0] -split "\s")[1]
-    $bpps = $bpps[2..$bpps.count]
+        TRY {
+            IF ($ProcessGroup -and $ComputerName)
+            {
+                FOREACH ($Computer in $ComputerName)
+                {
+                    $bpps = bpps -i $ProcessGroup $Computer
+                    $bpps_server = ($bpps[0] -split "\s")[1]
+                    $bpps = $bpps[2..$bpps.count]
+                    foreach ($obj in $bpps)
+                    {
+                        $obj = $obj -split "\s{2,}"
+                        New-Object -TypeName PSObject -Property @{
+                            ComputerName = $bpps_server
+                            Name = $obj[0]
+                            Pid = $obj[1]
+                            Load = $obj[2]
+                            Time = $obj[3]
+                            MemMB = $obj[4] -replace "M",""
+                            Start = $obj[5]
+                        }#New-Object
+                    }#Foreach
+                }#FOREACH ($Computer in $ComputerName)
+            }#IF ($ProcessGroup -and $ComputerName)
 
-        foreach ($obj in $bpps)
-        {
-            $obj = $obj -split "\s{2,}"
-            New-Object -TypeName PSObject -Property @{
-                Name = $obj[0]
-                Pid = $obj[1]
-                Load = $obj[2]
-                Time = $obj[3]
-                MemMB = $obj[4] -replace "M",""
-                Start = $obj[5]
+            IF ($ProcessGroup -and -not$ComputerName)
+            {
+                $bpps = bpps -i $ProcessGroup
+                $bpps_server = ($bpps[0] -split "\s")[1]
+                $bpps = $bpps[2..$bpps.count]
+                foreach ($obj in $bpps)
+                {
+                    $obj = $obj -split "\s{2,}"
+                    New-Object -TypeName PSObject -Property @{
+                        ComputerName = $bpps_server
+                        Name = $obj[0]
+                        Pid = $obj[1]
+                        Load = $obj[2]
+                        Time = $obj[3]
+                        MemMB = $obj[4] -replace "M",""
+                        Start = $obj[5]
+                    }#New-Object
+                }#Foreach
+            }#IF ($ProcessGroup -and -not$ComputerName)
+
+            IF (-not$ProcessGroup -and $ComputerName)
+            {
+                FOREACH ($Computer in $ComputerName)
+                {
+                    $bpps = bpps $Computer
+                    $bpps_server = ($bpps[0] -split "\s")[1]
+                    $bpps = $bpps[2..$bpps.count]
+                    foreach ($obj in $bpps)
+                    {
+                        $obj = $obj -split "\s{2,}"
+                        New-Object -TypeName PSObject -Property @{
+                            ComputerName = $bpps_server
+                            Name = $obj[0]
+                            Pid = $obj[1]
+                            Load = $obj[2]
+                            Time = $obj[3]
+                            MemMB = $obj[4] -replace "M",""
+                            Start = $obj[5]
+                        }#New-Object
+                    }#Foreach
+                }#FOREACH ($Computer in $ComputerName)
+            }#IF (-not$ProcessGroup -and $ComputerName)
+
+            ELSE
+            {
+                $bpps = bpps
+                $bpps_server = ($bpps[0] -split "\s")[1]
+                $bpps = $bpps[2..$bpps.count]
+
+                foreach ($obj in $bpps)
+                {
+                    $obj = $obj -split "\s{2,}"
+                    New-Object -TypeName PSObject -Property @{
+                        ComputerName = $bpps_server
+                        Name = $obj[0]
+                        Pid = $obj[1]
+                        Load = $obj[2]
+                        Time = $obj[3]
+                        MemMB = $obj[4] -replace "M",""
+                        Start = $obj[5]
             
-            }
+                    }#New-Object
+                }#Foreach
+            } #ELSE
         }
+        CATCH
+        {
+            Write-Warning -Message "PROCESS - Something wrong happened"
+        }
+    }#PROCESS
 
-    }
-
-}
-
+}#function Get-NetBackupProcess
 
 
 
