@@ -97,6 +97,15 @@ Function Get-NetBackupClient
 	Get-NetBackupClient
 	
 	List all the clients registered in NetBackup Database
+.NOTES
+	Francois-Xavier Cat
+	LazyWinAdmin.com
+	@Lazywinadm
+	
+	https://github.com/lazywinadmin/NetBackupPS
+	
+	HISTORY
+	 1.0 2014/06/01 Initial Version
 #>
 	
 	
@@ -140,6 +149,15 @@ function Get-NetBackupGlobalConfiguration
 	Get-NetBackupGlobalConfiguration -LongFormat
 .EXAMPLE
 	Get-NetBackupGlobalConfiguration -ShortFormat
+.NOTES
+	Francois-Xavier Cat
+	LazyWinAdmin.com
+	@Lazywinadm
+	
+	https://github.com/lazywinadmin/NetBackupPS
+	
+	HISTORY
+	 1.0 2014/06/01 Initial Version
 	
 #>
 	[CmdletBinding()]
@@ -261,6 +279,16 @@ UserID                 : fx\vm_netbackup
 RequiredPort           : 0
 VirtualMachineHostName : fx-vcenter03
 
+.NOTES
+	Francois-Xavier Cat
+	LazyWinAdmin.com
+	@Lazywinadm
+	
+	https://github.com/lazywinadmin/NetBackupPS
+	
+	HISTORY
+	 1.0 2014/06/01 Initial Version
+
 #>
 [CmdletBinding()]
 PARAM(
@@ -339,6 +367,16 @@ function Get-NetBackupDiskMedia
     Get-NetBackupDiskMedia -Mount
     
     Lists the disk mount points for the disk pool.
+    
+.NOTES
+	Francois-Xavier Cat
+	LazyWinAdmin.com
+	@Lazywinadm
+	
+	https://github.com/lazywinadmin/NetBackupPS
+	
+	HISTORY
+	 1.0 2014/06/01 Initial Version
 #>
 
 [CmdletBinding()]
@@ -447,6 +485,16 @@ function Get-NetBackupJob
     Get-NetBackupJob -JobId 7149678, 7149679
     
     Reports information for the job 7149678 and 7149679
+    
+.NOTES
+	Francois-Xavier Cat
+	LazyWinAdmin.com
+	@Lazywinadm
+	
+	https://github.com/lazywinadmin/NetBackupPS
+	
+	HISTORY
+	 1.0 2014/06/01 Initial Version
 #>
 [CmdletBinding()]
 PARAM(
@@ -644,6 +692,16 @@ MediaID          : DD0005
 
     This will return the volumes in the PoolName 'Scratch' for the RobotNumber 23 and 19.
     It will additionally show the verbose messages/comments.
+    
+.NOTES
+	Francois-Xavier Cat
+	LazyWinAdmin.com
+	@Lazywinadm
+	
+	https://github.com/lazywinadmin/NetBackupPS
+	
+	HISTORY
+	 1.0 2014/06/01 Initial Version
 #>
 [CmdletBinding(DefaultParametersetName="MediaID")]
 PARAM(
@@ -952,6 +1010,16 @@ OTHER_PROCESSES
 
 .EXAMPLE
     Get-NetBackupProcess -ProcessGroup MM_ALL -ComputerName Server01, Server02
+    
+.NOTES
+	Francois-Xavier Cat
+	LazyWinAdmin.com
+	@Lazywinadm
+	
+	https://github.com/lazywinadmin/NetBackupPS
+	
+	HISTORY
+	 1.0 2014/06/01 Initial Version
 #>
 [CmdletBinding()]
 PARAM(
