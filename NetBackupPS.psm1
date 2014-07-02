@@ -16,6 +16,15 @@ Function Get-NetBackupPolicy
 	Get-NetBackupPolicy -AllPolicies
 	
 	List all the Policies with all properties
+.NOTES
+	Francois-Xavier Cat
+	LazyWinAdmin.com
+	@Lazywinadm
+	
+	https://github.com/lazywinadmin/NetBackupPS
+	
+	HISTORY
+	 1.0 2014/06/01 Initial Version
 #>
 
 	[CmdletBinding()]
