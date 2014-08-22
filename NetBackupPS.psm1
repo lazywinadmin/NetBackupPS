@@ -1172,6 +1172,23 @@ function Get-NetBackupStatusCode
 	Return the clear text of Status Codes for troubleshooting.
 	
 	The list of status codes is statically defined in the module
+.PARAMETER StatusCode
+	Status code number you wish to lookup
+.EXAMPLE
+	Get-NetBackupStatusCode -StatusCode 2
+	
+	C:\ > Get-NetBackupStatusCode -StatusCode 2
+		None of the requested files were backed up
+.NOTES
+	Kevin M. Kirkpatrick
+	https://github.com/vN3rd
+	www.vmotioned.com
+	@vN3rd
+	
+	HISTORY
+	 1.0 2014/08/22 Initial Version
+	
+	
 #>
 	
 	[cmdletbinding()]
