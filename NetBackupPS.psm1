@@ -1163,7 +1163,290 @@ PARAM(
 
 }#function Get-NetBackupProcess
 
-
+function Get-NetBackupStatusCode
+{
+<#
+.SYNOPSIS
+	Return the clear text of Status Codes for troubleshooting
+.DESCRIPTION
+	Return the clear text of Status Codes for troubleshooting.
+	
+	The list of status codes is statically defined in the module
+#>
+	
+	[cmdletbinding()]
+	param (
+		[parameter(ParameterSetName = "StatusCode",
+				   HelpMessage = "Enter status code number (ex: 15) ",
+				   ValueFromPipeline = $true,
+			 	   ValueFromPipelineByPropertyName = $true,
+				   Position = 0)]
+		[ValidateRange(0,255)]
+		[int]$StatusCode
+		
+	)
+	PROCESS{
+		Switch ($StatusCode)
+		{
+			0 { "The requested operation was successfully completed" }
+			1 { "The requested operation was partially successful" }
+			2 { "None of the requested files were backed up" }
+			3 { "Valid archive image produced, but no files deleted due to non-fatal problems" }
+			4 { "Archive file removal failed" }
+			5 { "The restore failed to recover the requested files" }
+			6 { "The backup failed to back up the requested files" }
+			7 { "The archive failed to back up the requested files" }
+			8 { "Unable to determine the status of rbak" }
+			9 { "An extension package is needed, but was not installed" }
+			10 { "Allocation failed" }
+			11 { "System call failed" }
+			12 { "File open failed" }
+			13 { "File read failed" }
+			14 { "File write failed" }
+			15 { "File close failed" }
+			16 { "Unimplemented feature" }
+			17 { "Pipe open failed" }
+			18 { "Pipe close failed" }
+			19 { "Getservbyname failed" }
+			20 { "Invalid command parameter" }
+			21 { "Socket open failed" }
+			22 { "Socket close failed" }
+			23 { "Socket read failed" }
+			24 { "Socket write failed" }
+			25 { "Cannot connect on socket" }
+			26 { "Client/server handshaking failed" }
+			27 { "Child process killed by signal" }
+			28 { "Failed trying to fork a process" }
+			29 { "Failed trying to exec a command" }
+			30 { "Could not get passwd information" }
+			31 { "Could not set user id for process" }
+			32 { "Could not set group id for process" }
+			33 { "Failed while trying to send mail" }
+			34 { "Failed waiting for child process" }
+			35 { "Cannot make required directory" }
+			36 { "Failed trying to allocate memory" }
+			37 { "Operation requested by an invalid server" }
+			38 { "Could not get group information" }
+			39 { "Client name mismatch" }
+			40 { "Network connection broken" }
+			41 { "Network connection timed out" }
+			42 { "Network read failed" }
+			43 { "Unexpected message received" }
+			44 { "Network write failed" }
+			45 { "Request attempted on a non reserved port" }
+			46 { "Server not allowed access" }
+			47 { "Host is unreachable" }
+			48 { "Client hostname could not be found" }
+			49 { "Client did not start" }
+			50 { "Client process aborted" }
+			51 { "Timed out waiting for database information" }
+			52 { "Timed out waiting for media manager to mount volume" }
+			53 { "Backup restore manager failed to read the file list" }
+			54 { "Timed out connecting to client" }
+			55 { "Permission denied by client during rcmd" }
+			56 { "Clients network is unreachable" }
+			57 { "Client connection refused" }
+			58 { "Cant connect to client" }
+			59 { "Access to the client was not allowed" }
+			60 { "Client cannot read the mount table" }
+			61 { "Wbak was killed" }
+			62 { "Wbak exited abnormally" }
+			63 { "Process was killed by a signal" }
+			64 { "Timed out waiting for the client backup to start" }
+			65 { "Client timed out waiting for the continue message from the media manager" }
+			66 { "Client backup failed to receive the CONTINUE BACKUP message" }
+			67 { "Client backup failed to read the file list" }
+			68 { "Client timed out waiting for the file list" }
+			69 { "Invalid filelist specification" }
+			70 { "An entry in the filelist expanded to too many characters" }
+			71 { "None of the files in the file list exist" }
+			72 { "The client type is incorrect in the configuration database" }
+			73 { "Bpstart_notify failed" }
+			74 { "Client timed out waiting for bpstart_notify to complete" }
+			75 { "Client timed out waiting for bpend_notify to complete" }
+			76 { "Client timed out reading file" }
+			77 { "Execution of the specified system command returned a nonzero status" }
+			78 { "Afs/dfs command failed" }
+			79 { "Unimplemented error code 79" }
+			80 { "Media Manager device daemon (ltid) is not active" }
+			81 { "Media Manager volume daemon (vmd) is not active" }
+			82 { "Media manager killed by signal" }
+			83 { "Media open error" }
+			84 { "Media write error" }
+			85 { "Media read error" }
+			86 { "Media position error" }
+			87 { "Media close error" }
+			88 { "Auspex SP/Backup failure" }
+			89 { "Fatal error in Unitree file system" }
+			90 { "Media manager received no data for backup image" }
+			91 { "Fatal NB media database error" }
+			92 { "Media manager detected image that was not in tar format" }
+			93 { "Media manager found wrong tape in drive" }
+			94 { "Cannot position to correct image" }
+			95 { "Requested media id was not found in NB media database and/or MM volume database" }
+			96 { "Unable to allocate new media for backup, storage unit has none available" }
+			97 { "Requested media id is in use, cannot process request" }
+			98 { "Error requesting media (tpreq)" }
+			99 { "NDMP backup failure" }
+			100 { "System error occurred while processing user command" }
+			101 { "Failed opening mail pipe" }
+			102 { "Failed closing mail pipe" }
+			103 { "Error occurred during initialization, check configuration file" }
+			104 { "Invalid file pathname" }
+			105 { "File pathname exceeds the maximum length allowed" }
+			106 { "Invalid file pathname found, cannot process request" }
+			107 { "Too many arguments specified" }
+			108 { "Invalid date format specified" }
+			109 { "Invalid date specified" }
+			110 { "Cannot find the NetBackup configuration information" }
+			111 { "No entry was found in the server list" }
+			112 { "No files specified in the file list" }
+			113 { "Unimplemented error code 113" }
+			114 { "Unimplemented error code 114" }
+			115 { "Unimplemented error code 115" }
+			116 { "Unimplemented error code 116" }
+			117 { "Unimplemented error code 117" }
+			118 { "Unimplemented error code 118" }
+			119 { "Unimplemented error code 119" }
+			120 { "Cannot find configuration database record for requested NB database backup" }
+			121 { "No media is defined for the requested NB database backup" }
+			122 { "Specified device path does not exist" }
+			123 { "Specified disk path is not a directory" }
+			124 { "NB database backup failed, a path was not found or is inaccessable" }
+			125 { "Another NB database backup is already in progress" }
+			126 { "NB database backup header is too large, too many paths specified" }
+			127 { "Specified media or path does not contain a valid NB database backup header" }
+			128 { "Unimplemented error code 128" }
+			129 { "Unimplemented error code 129" }
+			130 { "System error occurred" }
+			131 { "Client is not validated to use the server" }
+			132 { "User is not validated to use the server from this client" }
+			133 { "Invalid request" }
+			134 { "Unable to process request because the server resources are busy" }
+			135 { "Client is not validated to perform the requested operation" }
+			136 { "Unimplemented error code 136" }
+			137 { "Unimplemented error code 137" }
+			138 { "Unimplemented error code 138" }
+			139 { "Unimplemented error code 139" }
+			140 { "User id was not superuser" }
+			141 { "File path specified is not absolute" }
+			142 { "File does not exist" }
+			143 { "Invalid command protocol" }
+			144 { "Invalid command usage" }
+			145 { "Daemon is already running" }
+			146 { "Cannot get a bound socket" }
+			147 { "Required or specified copy was not found" }
+			148 { "Daemon fork failed" }
+			149 { "Master server request failed" }
+			150 { "Termination requested by administrator" }
+			151 { "Backup Exec operation failed" }
+			152 { "Required value not set" }
+			153 { "Server is not the master server" }
+			154 { "Storage unit characteristics mismatched to request" }
+			155 { "Unused b" }
+			156 { "Unused f" }
+			157 { "Unused d" }
+			158 { "Failed accessing daemon lock file" }
+			159 { "Licensed use has been exceeded" }
+			160 { "Authentication failed" }
+			161 { "Evaluation software has expired. See www.veritas.com for ordering information" }
+			162 { "Unimplemented error code 162" }
+			163 { "Unimplemented error code 163" }
+			164 { "Unable to mount media because its in a DOWN drive or misplaced" }
+			165 { "NB image database contains no image fragments for requested backup id/copy number" }
+			166 { "Backups are not allowed to span media" }
+			167 { "Cannot find requested volume pool in Media Manager volume database" }
+			168 { "Cannot overwrite media, data on it is protected" }
+			169 { "Media id is either expired or will exceed maximum mounts" }
+			170 { "Unimplemented error code 170" }
+			171 { "Media id must be 6 or less characters" }
+			172 { "Cannot read media header, may not be NetBackup media or is corrupted" }
+			173 { "Cannot read backup header, media may be corrupted" }
+			174 { "Media manager - system error occurred" }
+			175 { "Not all requested files were restored" }
+			176 { "Cannot perform specified media import operation" }
+			177 { "Could not deassign media due to Media Manager error" }
+			178 { "Media id is not in NetBackup volume pool" }
+			179 { "Density is incorrect for the media id" }
+			180 { "Tar was successful" }
+			181 { "Tar received an invalid argument" }
+			182 { "Tar received an invalid file name" }
+			183 { "Tar received an invalid archive" }
+			184 { "Tar had an unexpected error" }
+			185 { "Tar did not find all the files to be restored" }
+			186 { "Tar received no data" }
+			187 { "Unimplemented error code 187" }
+			188 { "Unimplemented error code 188" }
+			189 { "The server is not allowed to write to the clients filesystems" }
+			190 { "Found no images or media matching the selection criteria" }
+			191 { "No images were successfully processed" }
+			192 { "Unimplemented error code 192" }
+			193 { "Unimplemented error code 193" }
+			194 { "The maximum number of jobs per client is set to 0" }
+			195 { "Client backup was not attempted" }
+			196 { "Client backup was not attempted because backup window closed" }
+			197 { "The specified schedule does not exist in the specified class" }
+			198 { "No active classes contain schedules of the requested type for this client" }
+			199 { "Operation not allowed during this time period" }
+			200 { "Scheduler found no backups due to run" }
+			201 { "Handshaking failed with server backup restore manager" }
+			202 { "Timed out connecting to server backup restore manager" }
+			203 { "Server backup restore managers network is unreachable" }
+			204 { "Connection refused by server backup restore manager" }
+			205 { "Cannot connect to server backup restore manager" }
+			206 { "Access to server backup restore manager denied" }
+			207 { "Error obtaining date of last backup for client" }
+			208 { "Failed reading user directed filelist" }
+			209 { "Error creating or getting message queue" }
+			210 { "Error receiving information on message queue" }
+			211 { "Scheduler child killed by signal" }
+			212 { "Error sending information on message queue" }
+			213 { "No storage units available for use" }
+			214 { "Regular bpsched is already running" }
+			215 { "Failed reading global config database information" }
+			216 { "Failed reading retention database information" }
+			217 { "Failed reading storage unit database information" }
+			218 { "Failed reading class database information" }
+			219 { "The required storage unit is unavailable" }
+			220 { "Database system error" }
+			221 { "Continue" }
+			222 { "Done" }
+			223 { "An invalid entry was encountered" }
+			224 { "There was a conflicting specification" }
+			225 { "Text exceeded allowed length" }
+			226 { "The entity already exists" }
+			227 { "No entity was found" }
+			228 { "Unable to process request" }
+			229 { "Events out of sequence - image inconsistency" }
+			230 { "The specified class does not exist in the configuration database" }
+			231 { "Schedule windows overlap" }
+			232 { "A protocol error has occurred" }
+			233 { "Premature eof encountered" }
+			234 { "Communication interrupted" }
+			235 { "Inadequate buffer space" }
+			236 { "The specified client does not exist in an active class within the configuration database" }
+			237 { "The specified schedule does not exist in an active class in the configuration database" }
+			238 { "The database contains conflicting or erroneous entries" }
+			239 { "The specified client does not exist in the specified class" }
+			240 { "No schedules of the correct type exist in this class" }
+			241 { "The specified schedule is the wrong type for this request" }
+			242 { "Operation would cause an illegal duplication" }
+			243 { "The client is not in the configuration" }
+			244 { "Main bpsched is already running" }
+			245 { "The specified class is not of the correct client type" }
+			246 { "No active classes in the configuration database are of the correct client type" }
+			247 { "The specified class is not active" }
+			248 { "There are no active classes in the configuration database" }
+			249 { "The file list is incomplete" }
+			250 { "The image was not created with TIR information" }
+			251 { "The tir information is zero length" }
+			252 { "Unused TIR error 2" }
+			253 { "Unused TIR error 1" }
+			254 { "Server name not found in the bp.conf file" }
+			255 { "Unimplemented error code 255" }
+		}# end Switch
+	}# PROCESS
+}# Function Get-NetBackupStatusCode
 
 
 
