@@ -1,7 +1,7 @@
 NetBackupPS
 ===========
 
-PowerShell module for Symantec NetBackup (Parsing Fun :-)
+PowerShell module for Symantec NetBackup
 
 This module contains PowerShell Cmdlets built around the Symantec NetBackup CLI tools
 
