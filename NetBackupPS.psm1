@@ -1,4 +1,3 @@
-# NetBackup Server - Policy
 Function Get-NetBackupPolicy
 {
 <#
@@ -82,9 +81,7 @@ Function Get-NetBackupPolicy
 			}
 		}
 	}
-}
-
-# NetBackup Server - Clients Management
+}#Get-NetBackupPolicy
 
 Function Get-NetBackupClient
 {
@@ -129,10 +126,8 @@ Function Get-NetBackupClient
 			Client = $client[2]
 		}
 	}#Foreach
-}
+}#Get-NetBackupClient
 
-
-# NetBackup Server - Global Configuration
 function Get-NetBackupGlobalConfiguration
 {
 <#
@@ -338,9 +333,6 @@ PARAM(
     }#PROCESS
 }#Get-NetBackupTapeConfiguration
 
-
-# NetBackup Server - Disk Media Status
-
 function Get-NetBackupDiskMedia
 {
 <#
@@ -443,9 +435,6 @@ PARAM(
         }
     }
 }
-
-# NetBackup Server - Jobs
-
 function Get-NetBackupJob
 {
 <#
@@ -552,8 +541,6 @@ PARAM(
     }#PROCESS
 }#function Get-NetBackupJob
 
-
-# NetBackup Server - Volume
 function Get-NetBackupVolume
 {
 <#
@@ -915,10 +902,6 @@ PARAM(
         }#IF $MediaID
     }#process
 }#function Get-NetBackupVolume
-
-
-
-
 
 function Get-NetBackupProcess
 {
@@ -1464,7 +1447,6 @@ function Get-NetBackupStatusCode
 		}# end Switch
 	}# PROCESS
 }# Function Get-NetBackupStatusCode
-
 
 
 Export-ModuleMember -Function *
