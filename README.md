@@ -14,5 +14,7 @@ Cmdlets List: (2014/09/20)
 -  Get-NetBackupJob
 -  Get-NetBackupPolicy
 -  Get-NetBackupProcess
+-  Get-NetBackupStatusCode
 -  Get-NetBackupTapeConfiguration
 -  Get-NetBackupVolume
+
