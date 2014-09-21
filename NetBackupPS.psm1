@@ -173,8 +173,11 @@ function Get-NetBackupGlobalConfiguration
 .DESCRIPTION
 	Display global configuration attributes for NetBackup
 .PARAMETER DisplayFormat
+	Use the user-friendly format from bpconfig.exe
 .PARAMETER LongFormat
+	Use the LongFormat format from bpconfig.exe
 .PARAMETER ShortFormat
+	Use the ShortFormat format from bpconfig.exe
 .EXAMPLE
 	Get-NetBackupGlobalConfiguration -DisplayFormat
 .EXAMPLE
