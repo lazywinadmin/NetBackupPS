@@ -3,18 +3,23 @@ Function Get-NetBackupPolicy
 <#
 .SYNOPSIS
    The function Get-NetBackupPolicy list all the policies from the Master Server
+	
 .DESCRIPTION
    The function Get-NetBackupPolicy list all the policies from the Master Server
+	
 .PARAMETER AllPolicies
 	List all the Policies with all properties
+	
 .EXAMPLE
 	Get-NetBackupPolicy
 	
 	List all the policies name
+	
 .EXAMPLE
 	Get-NetBackupPolicy -AllPolicies
 	
 	List all the Policies with all properties
+	
 .NOTES
 	Francois-Xavier Cat
 	LazyWinAdmin.com
@@ -23,10 +28,11 @@ Function Get-NetBackupPolicy
 	https://github.com/lazywinadmin/NetBackupPS
 	
 	HISTORY
-	 1.0 2014/06/01 Initial Version
+	1.0 2014/06/01	Initial Version
+	1.1 2014/09/20	Add Errors handling and Verbose
+					Add Blocks BEGIN,PROCESS,END
 #>
-
-	[CmdletBinding()]
+	[CmdletBinding(DefaultParameterSetName = "AllPolicies")]
 	PARAM (
 		[parameter(ParameterSetName = "AllPolicies")]
 		[switch]$AllPolicies
@@ -41,59 +47,75 @@ Function Get-NetBackupPolicy
 		[parameter(ParameterSetName = "byclient", Mandatory)]
 		[String]$ClientName
 	#>
-		)
-	
-	Write-Verbose -Message "NetBackup - BPPLLIST - List policy information"
-	IF ($AllPolicies)
+	)
+	BEGIN { Write-Verbose -Message "[BEGIN] Function Get-NetBackupPolicy - bppllist.exe"}
+	PROCESS
 	{
-		# List the Policies
-		$bppllist = (bppllist -allpolicies) -as [String]
-		
-		# Split the Policies
-		$bppllist = $bppllist -split "CLASS\s"
-		
-		FOREACH ($policy in $bppllist)
+		TRY
 		{
-			#http://www.symantec.com/business/support/index?page=content&id=HOWTO90333
-			New-Object -TypeName PSObject -Property @{
-				PolicyName = ($policy[0] -split " ")[0]
-				CLASS = ($policy[0] -split " ")
-				NAMES = ($policy[1] -split " ")
-				INFO = ($policy[2])[5..($policy[2].count)] -split " "
-				KEY = ($policy[3])[4..($policy[3].count)] -split " "
-				BCMD = ($policy[4])[5..($policy[4].count)] -split " "
-				RCMD = ($policy[5])[5..($policy[5].count)] -split " "
-				RES = ($policy[6])
-				POOL = ($policy[7])[5..($policy[7].count)] -split " "
+			IF ($PSboundparameters['AllPolicies'])
+			{
+				# List the Policies
+				Write-Verbose -Message "[PROCESS] PARAM: AllPolicies"
+				$bppllist = (bppllist -allpolicies) -as [String]
+				
+				# Split the Policies
+				$bppllist = $bppllist -split "CLASS\s"
+				
+				FOREACH ($policy in $bppllist)
+				{
+					#http://www.symantec.com/business/support/index?page=content&id=HOWTO90333
+					New-Object -TypeName PSObject -Property @{
+						PolicyName = ($policy[0] -split " ")[0]
+						CLASS = ($policy[0] -split " ")
+						NAMES = ($policy[1] -split " ")
+						INFO = ($policy[2])[5..($policy[2].count)] -split " "
+						KEY = ($policy[3])[4..($policy[3].count)] -split " "
+						BCMD = ($policy[4])[5..($policy[4].count)] -split " "
+						RCMD = ($policy[5])[5..($policy[5].count)] -split " "
+						RES = ($policy[6])
+						POOL = ($policy[7])[5..($policy[7].count)] -split " "
+					}
+				}
+				
 			}
-		}
-		
-	}
-	
-	ELSE
-	{
-		# List the Policies
-		$bppllist = bppllist
-		FOREACH ($policy in $bppllist)
+			ELSE
+			{
+				
+				# List the Policies
+				Write-Verbose -Message "[PROCESS] NO PARAM"
+				$bppllist = bppllist
+				FOREACH ($policy in $bppllist)
+				{
+					New-Object -TypeName PSObject -Property @{
+						PolicyName = $policy
+					}
+				}
+			}
+		}#TRY
+		CATCH
 		{
-			New-Object -TypeName PSObject -Property @{
-				PolicyName = $policy
-			}
+			Write-Warning -Message "[PROCESS] Something wrong happened"
+			Write-Warning -Message $Error[0].Exception.Message
 		}
-	}
+	}#PROCESS
+	END { Write-Verbose -Message "[END] Function Get-NetBackupPolicy" }
 }#Get-NetBackupPolicy
 
 Function Get-NetBackupClient
 {
 <#
-.Synopsis
+.SYNOPSIS
    The function Get-NetbackupClient list all the client known from the Master Server
+	
 .DESCRIPTION
    The function Get-NetbackupClient list all the client known from the Master Server
+	
 .EXAMPLE
 	Get-NetBackupClient
 	
 	List all the clients registered in NetBackup Database
+	
 .NOTES
 	Francois-Xavier Cat
 	LazyWinAdmin.com
@@ -102,30 +124,45 @@ Function Get-NetBackupClient
 	https://github.com/lazywinadmin/NetBackupPS
 	
 	HISTORY
-	 1.0 2014/06/01 Initial Version
+	1.0 2014/06/01  Initial Version
+	1.1 2014/09/20  Add Errors handling and Verbose
+					Add Blocks BEGIN,PROCESS,END
 #>
-	
-	
-	# Get the client list for the command bpplclients
-	Write-Verbose -Message "Querying Bpplclients..."
-	$bpplclients = bpplclients.exe
-	
-	Write-Verbose -Message "Formatting and Output result..."
-	Foreach ($client in (($bpplclients)[2..($bpplclients.count)]))
+	[CmdletBinding()]
+	PARAM ()
+	BEGIN { Write-Verbose -Message "[BEGIN] Function Get-NetBackupClient - bpplclients.exe" }
+	PROCESS
 	{
-		
-		# Remove the white spaces, replace by space character
-		$client = $client -replace '\s+', ' '
-		
-		# Split on space character
-		$client = $client -split ' '
-		
-		New-Object -TypeName PSobject -Property @{
-			Hardware = $client[0]
-			OS = $client[1]
-			Client = $client[2]
+		TRY
+		{
+			# Get the client list for the command bpplclients
+			Write-Verbose -Message "[PROCESS] Querying Bpplclients..."
+			$bpplclients = bpplclients.exe
+			
+			Write-Verbose -Message "[PROCESS] Formatting and Output result..."
+			Foreach ($client in (($bpplclients)[2..($bpplclients.count)]))
+			{
+				
+				# Remove the white spaces, replace by space character
+				$client = $client -replace '\s+', ' '
+				
+				# Split on space character
+				$client = $client -split ' '
+				
+				New-Object -TypeName PSobject -Property @{
+					Hardware = $client[0]
+					OS = $client[1]
+					Client = $client[2]
+				}
+			}#Foreach
+		}#TRY
+		CATCH
+		{
+			Write-Warning -Message "[PROCESS] Something wrong happened"
+			Write-Warning -Message $Error[0].Exception.Message
 		}
-	}#Foreach
+	}#PROCESS
+	END { Write-Verbose -Message "[END] Function Get-NetBackupClient" }
 }#Get-NetBackupClient
 
 function Get-NetBackupGlobalConfiguration
@@ -152,7 +189,9 @@ function Get-NetBackupGlobalConfiguration
 	https://github.com/lazywinadmin/NetBackupPS
 	
 	HISTORY
-	 1.0 2014/06/01 Initial Version
+	1.0 2014/06/01	Initial Version
+	1.1 2014/09/20  Add Errors handling and Verbose
+					Add Blocks BEGIN,PROCESS,END
 	
 #>
 	[CmdletBinding()]
@@ -164,79 +203,94 @@ function Get-NetBackupGlobalConfiguration
 		[Parameter(ParameterSetName = "ShortFormat", Mandatory = $true)]
 		[switch]$ShortFormat
 	)
-	
-	Write-Verbose -Message "NetBackup - BPCONFIG - Display global configuration attributes for NetBackup"
-	
-	IF ($DisplayFormat)
+	BEGIN { Write-Verbose -Message "[BEGIN] Function Get-NetBackupGlobalConfiguration - bpconfig.exe" }
+	PROCESS
 	{
-		$bpconfig = bpconfig -U
-		New-Object -TypeName PSObject -Property @{
-			AdministratorEmailAddress = ($bpconfig[1] -split ":\s+")[1]
-			JobRetryDelay = ($bpconfig[2] -split ":\s+")[1]
-			MaximumSimultaneousJobsPerClient = ($bpconfig[3] -split ":\s+")[1]
-			BackupTries = ($bpconfig[4] -split ":\s+")[1]
-			KeepErrorsDebugLogs = ($bpconfig[5] -split ":\s+")[1]
-			MaxDrivesThisMaster = ($bpconfig[6] -split ":\s+")[1]
-			KeepTrueImageRecoveryInfo = ($bpconfig[7] -split ":\s+")[1]
-			CompressImageDBFiles = ($bpconfig[8] -split ":\s+")[1]
-			MediaMountTimeout = ($bpconfig[9] -split ":\s+")[1]
-			SharedMediaMountTimeout = ($bpconfig[10] -split ":\s+")[1]
-			DisplayReports = ($bpconfig[11] -split ":\s+")[1]
-			PreprocessInterval = ($bpconfig[12] -split ":\s+")[1]
-			MaximumBackupCopies = ($bpconfig[13] -split ":\s+")[1]
-			ImageDBCleanupInterval = ($bpconfig[14] -split ":\s+")[1]
-			ImageDBCleanupWaitTime = ($bpconfig[15] -split ":\s+")[1]
-			PolicyUpdateInterval = ($bpconfig[16] -split ":\s+")[1]
+		TRY
+		{
+			Write-Verbose -Message "[PROCESS] Display global configuration attributes for NetBackup"
+			
+			IF ($PSBoundParameters['DisplayFormat'])
+			{
+				Write-Verbose -Message "[PROCESS] PARAM: DisplayFormat"
+				$bpconfig = bpconfig -U
+				New-Object -TypeName PSObject -Property @{
+					AdministratorEmailAddress = ($bpconfig[1] -split ":\s+")[1]
+					JobRetryDelay = ($bpconfig[2] -split ":\s+")[1]
+					MaximumSimultaneousJobsPerClient = ($bpconfig[3] -split ":\s+")[1]
+					BackupTries = ($bpconfig[4] -split ":\s+")[1]
+					KeepErrorsDebugLogs = ($bpconfig[5] -split ":\s+")[1]
+					MaxDrivesThisMaster = ($bpconfig[6] -split ":\s+")[1]
+					KeepTrueImageRecoveryInfo = ($bpconfig[7] -split ":\s+")[1]
+					CompressImageDBFiles = ($bpconfig[8] -split ":\s+")[1]
+					MediaMountTimeout = ($bpconfig[9] -split ":\s+")[1]
+					SharedMediaMountTimeout = ($bpconfig[10] -split ":\s+")[1]
+					DisplayReports = ($bpconfig[11] -split ":\s+")[1]
+					PreprocessInterval = ($bpconfig[12] -split ":\s+")[1]
+					MaximumBackupCopies = ($bpconfig[13] -split ":\s+")[1]
+					ImageDBCleanupInterval = ($bpconfig[14] -split ":\s+")[1]
+					ImageDBCleanupWaitTime = ($bpconfig[15] -split ":\s+")[1]
+					PolicyUpdateInterval = ($bpconfig[16] -split ":\s+")[1]
+				}
+				
+			}
+			IF ($PSBoundParameters['LongFormat'])
+			{
+				Write-Verbose -Message "[PROCESS] PARAM: LongFormat"
+				$bpconfig = bpconfig -L
+				New-Object -TypeName PSObject -Property @{
+					AdministratorEmailAddress = ($bpconfig[1] -split ":\s+")[1]
+					JobRetryDelay = ($bpconfig[2] -split ":\s+")[1]
+					MaximumSimultaneousJobsPerClient = ($bpconfig[3] -split ":\s+")[1]
+					BackupTries = ($bpconfig[4] -split ":\s+")[1]
+					KeepErrorsDebugLogs = ($bpconfig[5] -split ":\s+")[1]
+					MaxDrivesThisMaster = ($bpconfig[6] -split ":\s+")[1]
+					CompressImageDBFiles = ($bpconfig[7] -split ":\s+")[1]
+					MediaMountTimeout = ($bpconfig[8] -split ":\s+")[1]
+					SharedMediaMountTimeout = ($bpconfig[9] -split ":\s+")[1]
+					DisplayReports = ($bpconfig[10] -split ":\s+")[1]
+					KeepTIRinfo = ($bpconfig[11] -split ":\s+")[1]
+					PreprocessInterval = ($bpconfig[12] -split ":\s+")[1]
+					MaximumBackupCopies = ($bpconfig[13] -split ":\s+")[1]
+					ImageDBCleanupInterval = ($bpconfig[14] -split ":\s+")[1]
+					ImageDBCleanupWaitTime = ($bpconfig[15] -split ":\s+")[1]
+					PolicyUpdateInterval = ($bpconfig[16] -split ":\s+")[1]
+				}
+				
+			}
+			IF ($PSBoundParameters['ShortFormat'])
+			{
+				Write-Verbose -Message "[PROCESS] PARAM: ShortFormat"
+				$bpconfig = bpconfig -l
+				$bpconfig = $bpconfig -split " "
+				New-Object -TypeName PSObject -Property @{
+					AdministratorEmailAddress = $bpconfig[0]
+					JobRetryDelay = $bpconfig[1]
+					BackupTimePeriod = $bpconfig[2]
+					MaximumSimultaneousJobsPerClient = $bpconfig[3]
+					BackupTries = $bpconfig[4]
+					KeepErrorsDebugLogs = $bpconfig[5]
+					MaxDrivesThisMaster = $bpconfig[6]
+					CompressImageDBFiles = $bpconfig[7] 	# 0 denotes no compression
+					MediaMountTimeout = $bpconfig[8] 		# 0 denotes unlimited
+					SharedMediaMountTimeout = $bpconfig[9] 	# Multihosted-media-mount timeout is 0 seconds; 0 denotes unlimited.
+					PostProcessImagesFlag = $bpconfig[10]	# 1 is immediate
+					DisplayReports = $bpconfig[11] 			#Display reports from x hours ago
+					KeepTIRinfo = $bpconfig[12] 			#Keep TIR information for one x day.
+					PreprocessInterval = $bpconfig[13]
+					ImageDBCleanupInterval = $bpconfig[14]
+					ImageDBCleanupWaitTime = $bpconfig[15]
+					PolicyUpdateInterval = $bpconfig[16]
+				}
+			}
+		}#TRY
+		CATCH
+		{
+			Write-Warning -Message "[PROCESS] Something wrong happened"
+			Write-Warning -Message $Error[0].Exception.Message
 		}
-		
-	}
-	IF ($LongFormat)
-	{
-		$bpconfig = bpconfig -L
-		New-Object -TypeName PSObject -Property @{
-			AdministratorEmailAddress = ($bpconfig[1] -split ":\s+")[1]
-			JobRetryDelay = ($bpconfig[2] -split ":\s+")[1]
-			MaximumSimultaneousJobsPerClient = ($bpconfig[3] -split ":\s+")[1]
-			BackupTries = ($bpconfig[4] -split ":\s+")[1]
-			KeepErrorsDebugLogs = ($bpconfig[5] -split ":\s+")[1]
-			MaxDrivesThisMaster = ($bpconfig[6] -split ":\s+")[1]
-			CompressImageDBFiles = ($bpconfig[7] -split ":\s+")[1]
-			MediaMountTimeout = ($bpconfig[8] -split ":\s+")[1]
-			SharedMediaMountTimeout = ($bpconfig[9] -split ":\s+")[1]
-			DisplayReports = ($bpconfig[10] -split ":\s+")[1]
-			KeepTIRinfo = ($bpconfig[11] -split ":\s+")[1]
-			PreprocessInterval = ($bpconfig[12] -split ":\s+")[1]
-			MaximumBackupCopies = ($bpconfig[13] -split ":\s+")[1]
-			ImageDBCleanupInterval = ($bpconfig[14] -split ":\s+")[1]
-			ImageDBCleanupWaitTime = ($bpconfig[15] -split ":\s+")[1]
-			PolicyUpdateInterval = ($bpconfig[16] -split ":\s+")[1]
-		}
-		
-	}
-	IF ($ShortFormat)
-	{
-		$bpconfig = bpconfig -l
-		$bpconfig = $bpconfig -split " "
-		New-Object -TypeName PSObject -Property @{
-			AdministratorEmailAddress = $bpconfig[0]
-			JobRetryDelay = $bpconfig[1]
-			BackupTimePeriod = $bpconfig[2]
-			MaximumSimultaneousJobsPerClient = $bpconfig[3]
-			BackupTries = $bpconfig[4]
-			KeepErrorsDebugLogs = $bpconfig[5]
-			MaxDrivesThisMaster = $bpconfig[6]
-			CompressImageDBFiles = $bpconfig[7] 	# 0 denotes no compression
-			MediaMountTimeout = $bpconfig[8] 		# 0 denotes unlimited
-			SharedMediaMountTimeout = $bpconfig[9] 	# Multihosted-media-mount timeout is 0 seconds; 0 denotes unlimited.
-			PostProcessImagesFlag = $bpconfig[10]	# 1 is immediate
-			DisplayReports = $bpconfig[11] 			#Display reports from x hours ago
-			KeepTIRinfo = $bpconfig[12] 			#Keep TIR information for one x day.
-			PreprocessInterval = $bpconfig[13]
-			ImageDBCleanupInterval = $bpconfig[14]
-			ImageDBCleanupWaitTime = $bpconfig[15]
-			PolicyUpdateInterval = $bpconfig[16]
-		}
-	}
+	}#PROCESS
+	END { Write-Verbose -Message "[END] Function Get-NetBackupGlobalConfiguration - bpconfig.exe" }
 }#Get-NetBackupGlobalConfiguration
 
 function Get-NetBackupTapeConfiguration
@@ -282,55 +336,68 @@ VirtualMachineHostName : fx-vcenter03
 	https://github.com/lazywinadmin/NetBackupPS
 	
 	HISTORY
-	 1.0 2014/06/01 Initial Version
+	1.0 2014/06/01 Initial Version
+	1.1 2014/09/20  Add Errors handling and Verbose
+					Add Blocks BEGIN,PROCESS,END
 
 #>
 [CmdletBinding()]
 PARAM(
     [Parameter(ParameterSetName="VMCred",Mandatory = $true)]
     [Switch]$VirtualMachineCredential
-    )
-    PROCESS
-    {
-        IF ($VirtualMachineCredential)
-        {
-         Write-Verbose -Message "PROCESS - Getting VirtualMachine Credentials"
-            $OutputInfo = (tpconfig -dvirtualmachines)
-            
-            # Get rid of empty spaces and replace by :
-            $OutputInfo = $OutputInfo -replace ":\s+",":"
-
-            # Add a comma at the end of each line to delimit each object (this is needed when the object $outputinfo is converted to STRING)
-            $OutputInfo = $OutputInfo -replace "\Z",","
-
-            #Convert to [string]
-            $OutputInfo = $OutputInfo -as [string]
-
-            # Split each object
-            $OutputInfo = $OutputInfo -split "==============================================================================,"
-            #$OutputInfo = $OutputInfo -split "================================================================================,"
-
-            $OutputInfo = ($OutputInfo[1..($OutputInfo.count-1)])
-
-            FOREACH ($obj in $OutputInfo)
-            {
-                $obj = $obj -split ","
-                $SubTypeName = switch (($obj[2] -split ":")[1]) {
-                                "(1)" {"VMware"}
-                                "(2)" {"VMware ESX Servers"}
-                                "(3)" {"VMware Converter Servers"}
-                                }
-                New-Object -TypeName PSObject -Property @{
-                    VirtualMachineHostName = ($obj[0] -split ":")[1]
-                    VirtualMachineHostType = ($obj[1] -split ":")[1]
-                    SubType = ($obj[2] -split ":")[1][1]
-                    SubTypeName = $SubTypeName
-                    UserID = ($obj[3] -split ":")[1]
-                    RequiredPort = ($obj[4] -split ":")[1]
-                } #NEW-OBJET
-            } #FOREACH
-        }#IF
-    }#PROCESS
+	)
+	BEGIN { Write-Verbose -Message "[BEGIN] Function Get-NetBackupTapeConfiguration - tpconfig.exe" }
+	PROCESS
+	{
+		TRY
+		{
+			IF ($PSBoundParameters['VirtualMachineCredential'])
+			{
+				Write-Verbose -Message "[PROCESS] Getting VirtualMachine Credentials"
+				$OutputInfo = (tpconfig -dvirtualmachines)
+				
+				# Get rid of empty spaces and replace by :
+				$OutputInfo = $OutputInfo -replace ":\s+", ":"
+				
+				# Add a comma at the end of each line to delimit each object (this is needed when the object $outputinfo is converted to STRING)
+				$OutputInfo = $OutputInfo -replace "\Z", ","
+				
+				#Convert to [string]
+				$OutputInfo = $OutputInfo -as [string]
+				
+				# Split each object
+				$OutputInfo = $OutputInfo -split "==============================================================================,"
+				
+				
+				$OutputInfo = ($OutputInfo[1..($OutputInfo.count - 1)])
+				
+				FOREACH ($obj in $OutputInfo)
+				{
+					$obj = $obj -split ","
+					$SubTypeName = switch (($obj[2] -split ":")[1])
+					{
+						"(1)" { "VMware" }
+						"(2)" { "VMware ESX Servers" }
+						"(3)" { "VMware Converter Servers" }
+					}
+					New-Object -TypeName PSObject -Property @{
+						VirtualMachineHostName = ($obj[0] -split ":")[1]
+						VirtualMachineHostType = ($obj[1] -split ":")[1]
+						SubType = ($obj[2] -split ":")[1][1]
+						SubTypeName = $SubTypeName
+						UserID = ($obj[3] -split ":")[1]
+						RequiredPort = ($obj[4] -split ":")[1]
+					} #NEW-OBJET
+				} #FOREACH
+			}#IF
+		}
+		CATCH
+		{
+			Write-Warning -Message "[PROCESS] Something wrong happened"
+			Write-Warning -Message $Error[0].Exception.Message
+		}
+	}#PROCESS
+	END { Write-Verbose -Message "[END] Function Get-NetBackupTapeConfiguration - tpconfig.exe" }
 }#Get-NetBackupTapeConfiguration
 
 function Get-NetBackupDiskMedia
@@ -368,10 +435,12 @@ function Get-NetBackupDiskMedia
 	https://github.com/lazywinadmin/NetBackupPS
 	
 	HISTORY
-	 1.0 2014/06/01 Initial Version
+	1.0 2014/06/01	Initial Version
+	1.1 2014/09/20  Add Errors handling and Verbose
+					Add Blocks BEGIN,PROCESS,END
 #>
 
-[CmdletBinding()]
+[CmdletBinding(DefaultParameterSetName = "StorageServer")]
 PARAM(
     [Parameter(ParameterSetName="StorageServer",Mandatory = $true)]
     [Switch]$StorageServer,
@@ -380,60 +449,72 @@ PARAM(
     [Parameter(ParameterSetName="Mount",Mandatory = $true)]
     [Switch]$Mount
     )
-    
+	BEGIN { Write-Verbose -Message "[BEGIN] Function Get-NetBackupDiskMedia - nbdevquery.exe" }
     PROCESS{
-        IF ($StorageServer)
-        {
-            $nbdevquery = nbdevquery -liststs
-            Foreach ($Obj in $nbdevquery)
-            {
-                $obj = $obj -split "\s"
-                New-Object -TypeName PSObject -Property @{
-                    Version = $Obj[0]
-                    StorageServer = $Obj[1]
-                    ServerType = $Obj[2]
-                    StorageType = $Obj[3]
-                }
-            }
-        }
-        IF ($DiskPool)
-        {
-            $nbdevquery = nbdevquery -listdp
-            Foreach ($Obj in $nbdevquery)
-            {
-                $obj = $obj -split "\s"
-                New-Object -TypeName PSObject -Property @{
-                    Version = $Obj[0]
-                    DiskPool = $Obj[1]
-                    Flag1 = $Obj[2]
-                    Flag2 = $Obj[3]
-                    Flag3 = $Obj[4]
-                    Flag4 = $Obj[5]
-                    Flag5 = $Obj[6]
-                    Flag6 = $Obj[7]
-                    Flag7 = $Obj[8]
-                    StorageServer = $Obj[9]
-                }
-            }
-        }
-        IF ($Mount)
-        {
-            $nbdevquery = (nbdevquery -listmounts) -as [String]
-            foreach ($obj in $nbdevquery -split '\)\s')
-            {
-                $obj = $obj -split '\s+'
-                if ($obj[10] -like "*mounted*"){$mounted = $true}
-                else{$mounted = $false}
-                New-Object -TypeName PSObject -Property @{
-                    DiskPool = $obj[2]
-                    MountPointCount= $obj[4]
-                    SuRep = $obj[7]
-                    StorageServer = $obj[9]
-                    Mounted = $mounted
-                }
-            }
-        }
-    }
+		TRY
+		{
+			IF ($PSBoundParameters['StorageServer'])
+			{
+				Write-Verbose -Message "[PROCESS] PARAM: StorageServer"
+				$nbdevquery = nbdevquery -liststs
+				Foreach ($Obj in $nbdevquery)
+				{
+					$obj = $obj -split "\s"
+					New-Object -TypeName PSObject -Property @{
+						Version = $Obj[0]
+						StorageServer = $Obj[1]
+						ServerType = $Obj[2]
+						StorageType = $Obj[3]
+					}
+				}
+			}
+			IF ($PSBoundParameters['DiskPool'])
+			{
+				Write-Verbose -Message "[PROCESS] PARAM: DiskPool"
+				$nbdevquery = nbdevquery -listdp
+				Foreach ($Obj in $nbdevquery)
+				{
+					$obj = $obj -split "\s"
+					New-Object -TypeName PSObject -Property @{
+						Version = $Obj[0]
+						DiskPool = $Obj[1]
+						Flag1 = $Obj[2]
+						Flag2 = $Obj[3]
+						Flag3 = $Obj[4]
+						Flag4 = $Obj[5]
+						Flag5 = $Obj[6]
+						Flag6 = $Obj[7]
+						Flag7 = $Obj[8]
+						StorageServer = $Obj[9]
+					}
+				}
+			}
+			IF ($PSBoundParameters['Mount'])
+			{
+				Write-Verbose -Message "[PROCESS] PARAM: Mount"
+				$nbdevquery = (nbdevquery -listmounts) -as [String]
+				foreach ($obj in $nbdevquery -split '\)\s')
+				{
+					$obj = $obj -split '\s+'
+					if ($obj[10] -like "*mounted*") { $mounted = $true }
+					else { $mounted = $false }
+					New-Object -TypeName PSObject -Property @{
+						DiskPool = $obj[2]
+						MountPointCount = $obj[4]
+						SuRep = $obj[7]
+						StorageServer = $obj[9]
+						Mounted = $mounted
+					}
+				}
+			}
+		}#TRY
+		CATCH
+		{
+			Write-Warning -Message "[PROCESS] Something wrong happened"
+			Write-Warning -Message $Error[0].Exception.Message
+		}
+	}#PROCESS
+	END { Write-Verbose -Message "[END] Function Get-NetBackupDiskMedia - nbdevquery.exe" }
 }
 function Get-NetBackupJob
 {
@@ -483,7 +564,9 @@ function Get-NetBackupJob
 	https://github.com/lazywinadmin/NetBackupPS
 	
 	HISTORY
-	 1.0 2014/06/01 Initial Version
+	1.0 2014/06/01	Initial Version
+	1.1 2014/09/20  Add Errors handling and Verbose
+					Add Blocks BEGIN,PROCESS,END
 #>
 [CmdletBinding()]
 PARAM(
@@ -495,50 +578,66 @@ PARAM(
     [DateTime]$TimeStamp,
     [Parameter(ParameterSetName="JobID",Mandatory = $true)]
     [String[]]$JobId
-    )
-    PROCESS{
-        if ($Summary)
-        {
-            $bpdpjobs = bpdbjobs -summary
-            $obj = $bpdpjobs[1] -split '\s+'
-            New-Object -TypeName PSObject -Property @{
-                MasterServer = $obj[0]
-                Queued = $obj[1]
-                Requeued = $obj[2]
-                Active = $obj[3]
-                Success = $obj[4]
-                PartSucc = $obj[5]
-                Failed = $obj[6]
-                Incomplete = $obj[7]
-                Suspended = $obj[8]
-                WaitingRetry = $obj[9]
-                Total = $obj[10]
-            }
-        }
-        IF ($Full)
-        {
-            IF ($TimeStamp)
-            {
-                $DateTime = $TimeStamp -f 'MM/dd/yyyy hh:mm:ss'
-                (bpdbjobs -all_columns -t $DateTime) | 
-                    ConvertFrom-Csv -Delimiter "," -header jobid,jobtype,state,status,policy,schedule,client,server,started,elapsed,ended,stunit,try,operation,kbytes,files,pathlastwritten,percent,jobpid,owner,subtype,classtype,schedule_type,priority,group,masterserver,retentionunits,retentionperiod,compression,kbyteslastwritten,fileslastwritten,filelistcount,[files],trycount,[trypid,trystunit,tryserver,trystarted,tryelapsed,tryended,trystatus,trystatusdescription,trystatuscount,[trystatuslines],trybyteswritten,tryfileswritten],parentjob,kbpersec,copy,robot,vault,profile,session,ejecttapes,srcstunit,srcserver,srcmedia,dstmedia,stream,suspendable,resumable,restartable,datamovement,snapshot,backupid,killable,controllinghost    
-            }
-            ELSE
-            {
-                (bpdbjobs -all_columns) | 
-                    ConvertFrom-Csv -Delimiter "," -header jobid,jobtype,state,status,policy,schedule,client,server,started,elapsed,ended,stunit,try,operation,kbytes,files,pathlastwritten,percent,jobpid,owner,subtype,classtype,schedule_type,priority,group,masterserver,retentionunits,retentionperiod,compression,kbyteslastwritten,fileslastwritten,filelistcount,[files],trycount,[trypid,trystunit,tryserver,trystarted,tryelapsed,tryended,trystatus,trystatusdescription,trystatuscount,[trystatuslines],trybyteswritten,tryfileswritten],parentjob,kbpersec,copy,robot,vault,profile,session,ejecttapes,srcstunit,srcserver,srcmedia,dstmedia,stream,suspendable,resumable,restartable,datamovement,snapshot,backupid,killable,controllinghost
-            }
-        }#IF $Full
-        IF ($JobId)
-        {
-            FOREACH ($JobObj in $jobID)
-            {
-                Write-Verbose -Message "PROCESS - bpdbjobs - JOBID:$jobID"
-                (bpdbjobs -jobid $JobObj -all_columns) | 
-                        ConvertFrom-Csv -Delimiter "," -header jobid,jobtype,state,status,policy,schedule,client,server,started,elapsed,ended,stunit,try,operation,kbytes,files,pathlastwritten,percent,jobpid,owner,subtype,classtype,schedule_type,priority,group,masterserver,retentionunits,retentionperiod,compression,kbyteslastwritten,fileslastwritten,filelistcount,[files],trycount,[trypid,trystunit,tryserver,trystarted,tryelapsed,tryended,trystatus,trystatusdescription,trystatuscount,[trystatuslines],trybyteswritten,tryfileswritten],parentjob,kbpersec,copy,robot,vault,profile,session,ejecttapes,srcstunit,srcserver,srcmedia,dstmedia,stream,suspendable,resumable,restartable,datamovement,snapshot,backupid,killable,controllinghost
-            }
-        }
-    }#PROCESS
+	)
+	BEGIN { Write-Verbose -Message "[BEGIN] Function Get-NetBackupJob - bpdbjobs.exe" }
+	PROCESS
+	{
+		TRY
+		{
+			if ($PSBoundParameters['Summary'])
+			{
+				Write-Verbose -Message "[PROCESS] PARAM: Summary"
+				$bpdpjobs = bpdbjobs -summary
+				$obj = $bpdpjobs[1] -split '\s+'
+				New-Object -TypeName PSObject -Property @{
+					MasterServer = $obj[0]
+					Queued = $obj[1]
+					Requeued = $obj[2]
+					Active = $obj[3]
+					Success = $obj[4]
+					PartSucc = $obj[5]
+					Failed = $obj[6]
+					Incomplete = $obj[7]
+					Suspended = $obj[8]
+					WaitingRetry = $obj[9]
+					Total = $obj[10]
+				}
+			}
+			IF ($PSBoundParameters['Full'])
+			{
+				Write-Verbose -Message "[PROCESS] PARAM: Full"
+				
+				IF ($PSBoundParameters['TimeStamp'])
+				{
+					Write-Verbose -Message "[PROCESS] PARAM: TimeStamp"
+					$DateTime = $TimeStamp -f 'MM/dd/yyyy hh:mm:ss'
+					(bpdbjobs -all_columns -t $DateTime) |
+					ConvertFrom-Csv -Delimiter "," -header jobid, jobtype, state, status, policy, schedule, client, server, started, elapsed, ended, stunit, try, operation, kbytes, files, pathlastwritten, percent, jobpid, owner, subtype, classtype, schedule_type, priority, group, masterserver, retentionunits, retentionperiod, compression, kbyteslastwritten, fileslastwritten, filelistcount, [files], trycount, [trypid, trystunit, tryserver, trystarted, tryelapsed, tryended, trystatus, trystatusdescription, trystatuscount, [trystatuslines], trybyteswritten, tryfileswritten], parentjob, kbpersec, copy, robot, vault, profile, session, ejecttapes, srcstunit, srcserver, srcmedia, dstmedia, stream, suspendable, resumable, restartable, datamovement, snapshot, backupid, killable, controllinghost
+				}
+				ELSE
+				{
+					(bpdbjobs -all_columns) |
+					ConvertFrom-Csv -Delimiter "," -header jobid, jobtype, state, status, policy, schedule, client, server, started, elapsed, ended, stunit, try, operation, kbytes, files, pathlastwritten, percent, jobpid, owner, subtype, classtype, schedule_type, priority, group, masterserver, retentionunits, retentionperiod, compression, kbyteslastwritten, fileslastwritten, filelistcount, [files], trycount, [trypid, trystunit, tryserver, trystarted, tryelapsed, tryended, trystatus, trystatusdescription, trystatuscount, [trystatuslines], trybyteswritten, tryfileswritten], parentjob, kbpersec, copy, robot, vault, profile, session, ejecttapes, srcstunit, srcserver, srcmedia, dstmedia, stream, suspendable, resumable, restartable, datamovement, snapshot, backupid, killable, controllinghost
+				}
+			}#IF $Full
+			IF ($PSBoundParameters['JobId'])
+			{
+				Write-Verbose -Message "[PROCESS] PARAM: JobID"
+				FOREACH ($JobObj in $jobID)
+				{
+					Write-Verbose -Message "[PROCESS] JobID:$jobID"
+					(bpdbjobs -jobid $JobObj -all_columns) |
+					ConvertFrom-Csv -Delimiter "," -header jobid, jobtype, state, status, policy, schedule, client, server, started, elapsed, ended, stunit, try, operation, kbytes, files, pathlastwritten, percent, jobpid, owner, subtype, classtype, schedule_type, priority, group, masterserver, retentionunits, retentionperiod, compression, kbyteslastwritten, fileslastwritten, filelistcount, [files], trycount, [trypid, trystunit, tryserver, trystarted, tryelapsed, tryended, trystatus, trystatusdescription, trystatuscount, [trystatuslines], trybyteswritten, tryfileswritten], parentjob, kbpersec, copy, robot, vault, profile, session, ejecttapes, srcstunit, srcserver, srcmedia, dstmedia, stream, suspendable, resumable, restartable, datamovement, snapshot, backupid, killable, controllinghost
+				}
+			}
+		}#TRY
+		CATCH
+		{
+			Write-Warning -Message "[PROCESS] Something wrong happened"
+			Write-Warning -Message $Error[0].Exception.Message
+		}#CATCH
+	}#PROCESS
+	END { Write-Verbose -Message "[END] Function Get-NetBackupJob - bpdbjobs.exe" }
 }#function Get-NetBackupJob
 
 function Get-NetBackupVolume
@@ -688,7 +787,9 @@ MediaID          : DD0005
 	https://github.com/lazywinadmin/NetBackupPS
 	
 	HISTORY
-	 1.0 2014/06/01 Initial Version
+	1.0 2014/06/01	Initial Version
+	1.1 2014/09/20  Add Errors handling and Verbose
+					Add Blocks BEGIN,PROCESS,END
 #>
 [CmdletBinding(DefaultParametersetName="MediaID")]
 PARAM(
@@ -700,207 +801,217 @@ PARAM(
     [ValidateLength(1,6)]
     [String[]]$MediaID
     )
-
-    PROCESS
-    {
-        
-        IF ($RobotNumber -and $PoolName)
-        {
-            FOREACH ($RobotNo in $RobotNumber)
-            {
-                Write-Verbose -Message "PROCESS - vmquery on RobotNumber $RobotNo and PoolName $PoolName"
-                $OutputInfo = (vmquery -rn $RobotNo)
-                # Get rid of empty spaces and replace by :
-                $OutputInfo = $OutputInfo -replace ":\s+",":"
-
-                # Add a comma at the end of each line to delimit each object (this is needed when the object $outputinfo is converted to STRING)
-                $OutputInfo = $OutputInfo -replace "\Z",","
-
-                #Convert to [string]
-                $OutputInfo = $OutputInfo -as [string]
-
-                # Split each object
-                $OutputInfo = $OutputInfo -split "================================================================================,"
-
-                foreach ($obj in $OutputInfo)
-                {
-                    $obj = $obj -split ","
-                    New-Object -TypeName PSObject -Property @{
-                        MediaID = ($obj[0] -split ":")[1]
-                        MediaType = ($obj[1] -split ":")[1]
-                        Barcode = ($obj[2] -split ":")[1]
-                        MediaDescription = ($obj[3] -split ":")[1]
-                        VolumePool = ($obj[4] -split ":")[1]
-                        RobotType = ($obj[5] -split ":")[1]
-                        RobotNumber = ($obj[6] -split ":")[1]
-                        RobotSlot = ($obj[7] -split ":")[1]
-                        RobotControlHost = ($obj[8] -split ":")[1]
-                        VolumeGroup = ($obj[9] -split ":")[1]
-                        VaultName = ($obj[10] -split ":")[1]
-                        VaultSentDate = ($obj[11] -split ":")[1]
-                        VaultReturnDate = ($obj[12] -split ":")[1]
-                        VaultSlot = ($obj[13] -split ":")[1]
-                        VaultSessionID = ($obj[14] -split ":")[1]
-                        VaultContainerID = ($obj[15] -split ":")[1]
-                        CreatedDate = ($obj[16] -split ":")[1]
-                        AssignedDate = ($obj[17] -split ":")[1]
-                        FirstMountDate = ($obj[18] -split ":")[1]
-                        ExpirationDate = ($obj[19] -split ":")[1]
-                        NumberOfMounts = ($obj[20] -split ":")[1]
-                        MacMountsAllowed = ($obj[21] -split ":")[1]
-                        Status = ($obj[22] -split ":")[1]
-                    } | Where-Object {$_.VolumePool -like "*$PoolName*"}
-                }#foreach ($obj in $OutputInfo)
-            }# FOREACH ($RobotNo in $RobotNumber)
-        } #IF ($RobotNumber -and $PoolName)
-        
-        IF ($RobotNumber -and -not($PoolName))
-        {
-            FOREACH ($RobotNo in $RobotNumber)
-            {
-                Write-Verbose -Message "PROCESS - vmquery on RobotNumber $RobotNo"
-                $OutputInfo = (vmquery -rn $RobotNo)
-                # Get rid of empty spaces and replace by :
-                $OutputInfo = $OutputInfo -replace ":\s+",":"
-
-                # Add a comma at the end of each line to delimit each object (this is needed when the object $outputinfo is converted to STRING)
-                $OutputInfo = $OutputInfo -replace "\Z",","
-
-                #Convert to [string]
-                $OutputInfo = $OutputInfo -as [string]
-
-                # Split each object
-                $OutputInfo = $OutputInfo -split "================================================================================,"
-
-                foreach ($obj in $OutputInfo)
-                {
-                    $obj = $obj -split ","
-                    New-Object -TypeName PSObject -Property @{
-                        MediaID = ($obj[0] -split ":")[1]
-                        MediaType = ($obj[1] -split ":")[1]
-                        Barcode = ($obj[2] -split ":")[1]
-                        MediaDescription = ($obj[3] -split ":")[1]
-                        VolumePool = ($obj[4] -split ":")[1]
-                        RobotType = ($obj[5] -split ":")[1]
-                        RobotNumber = ($obj[6] -split ":")[1]
-                        RobotSlot = ($obj[7] -split ":")[1]
-                        RobotControlHost = ($obj[8] -split ":")[1]
-                        VolumeGroup = ($obj[9] -split ":")[1]
-                        VaultName = ($obj[10] -split ":")[1]
-                        VaultSentDate = ($obj[11] -split ":")[1]
-                        VaultReturnDate = ($obj[12] -split ":")[1]
-                        VaultSlot = ($obj[13] -split ":")[1]
-                        VaultSessionID = ($obj[14] -split ":")[1]
-                        VaultContainerID = ($obj[15] -split ":")[1]
-                        CreatedDate = ($obj[16] -split ":")[1]
-                        AssignedDate = ($obj[17] -split ":")[1]
-                        FirstMountDate = ($obj[18] -split ":")[1]
-                        ExpirationDate = ($obj[19] -split ":")[1]
-                        NumberOfMounts = ($obj[20] -split ":")[1]
-                        MacMountsAllowed = ($obj[21] -split ":")[1]
-                        Status = ($obj[22] -split ":")[1]
-                    }#new-Object
-                }#foreach
-            }#FOREACH ($RobotNo in $RobotNumber)
-        }# IF ($RobotNumber -and -not($PoolName))
-
-        IF ($PoolName -and -not($RobotNumber))
-        {
-            Write-Verbose -Message "PROCESS - vmquery on PoolName: $poolname"
-            $OutputInfo = (vmquery -pn $PoolName)
-            
-            # Get rid of empty spaces and replace by :
-            $OutputInfo = $OutputInfo -replace ":\s+",":"
-
-            # Add a comma at the end of each line to delimit each object (this is needed when the object $outputinfo is converted to STRING)
-            $OutputInfo = $OutputInfo -replace "\Z",","
-
-            #Convert to [string]
-            $OutputInfo = $OutputInfo -as [string]
-
-            # Split each object
-            $OutputInfo = $OutputInfo -split "================================================================================,"
-
-            foreach ($obj in $OutputInfo)
-            {
-                $obj = $obj -split ","
-                New-Object -TypeName PSObject -Property @{
-                    MediaID = ($obj[0] -split ":")[1]
-                    MediaType = ($obj[1] -split ":")[1]
-                    Barcode = ($obj[2] -split ":")[1]
-                    MediaDescription = ($obj[3] -split ":")[1]
-                    VolumePool = ($obj[4] -split ":")[1]
-                    RobotType = ($obj[5] -split ":")[1]
-                    VolumeGroup = ($obj[6] -split ":")[1]
-                    VaultName = ($obj[7] -split ":")[1]
-                    VaultSentDate = ($obj[8] -split ":")[1]
-                    VaultReturnDate = ($obj[9] -split ":")[1]
-                    VaultSlot = ($obj[10] -split ":")[1]
-                    VaultSessionID = ($obj[11] -split ":")[1]
-                    VaultContainerID = ($obj[12] -split ":")[1]
-                    CreatedDate = ($obj[13] -split ":")[1]
-                    AssignedDate = ($obj[14] -split ":")[1]
-                    LastMountedDate = ($obj[15] -split ":")[1]
-                    FirstMount = ($obj[16] -split ":")[1]
-                    ExpirationDate = ($obj[17] -split ":")[1]
-                    NumberOfMounts = ($obj[18] -split ":")[1]
-                    MacMountsAllowed = ($obj[19] -split ":")[1]
-                }#new-Object
-            }#foreach
-        }#IF $Poolname
-
-        IF ($MediaID)
-        {
-            FOREACH ($Media in $MediaID)
-            {
-                TRY{
-                    Write-Verbose -Message "PROCESS - vmquery on MediaID: $Media"
-                    #$OutputInfo = Invoke-command -ScriptBlock {(vmquery -m $Media 2>"$env:temp\netuser.err")}
-                    $OutputInfo = vmquery -m $Media 2>"$env:temp\vmquery_media.err"
-                    # Remove first and last line
-                    $OutputInfo = $OutputInfo[1..($OutputInfo.count - 2)]
-                
-                    # Get rid of empty spaces and replace by :
-                    $OutputInfo = $OutputInfo -replace ":\s+",":"
-
-                    # Add a comma at the end of each line to delimit each object (this is needed when the object $outputinfo is converted to STRING)
-                    $OutputInfo = $OutputInfo -replace "\Z",","
-
-                    # Convert to String
-                    $OutputInfo = $OutputInfo -as [String]
-
-                    # Split on comma
-                    $OutputInfo = $OutputInfo -split ","
-
-                    New-Object -TypeName PSObject -Property @{
-                        MediaID = ($OutputInfo[0] -split ":")[1]
-                        MediaType = ($OutputInfo[1] -split ":")[1]
-                        Barcode = ($OutputInfo[2] -split ":")[1]
-                        MediaDescription = ($OutputInfo[3] -split ":")[1]
-                        VolumePool = ($OutputInfo[4] -split ":")[1]
-                        RobotType = ($OutputInfo[5] -split ":")[1]
-                        VolumeGroup = ($OutputInfo[6] -split ":")[1]
-                        VaultName = ($OutputInfo[7] -split ":")[1]
-                        VaultSentDate = ($OutputInfo[8] -split ":")[1]
-                        VaultReturnDate = ($OutputInfo[9] -split ":")[1]
-                        VaultSlot = ($OutputInfo[10] -split ":")[1]
-                        VaultSessionID = ($OutputInfo[11] -split ":")[1]
-                        VaultContainerID = ($OutputInfo[12] -split ":")[1]
-                        CreatedDate = ($OutputInfo[13] -split ":")[1]
-                        AssignedDate = ($OutputInfo[14] -split ":")[1]
-                        LastMounted = ($OutputInfo[15] -split ":")[1]
-                        FirstMount = ($OutputInfo[16] -split ":")[1]
-                        ExpirationDate = ($OutputInfo[17] -split ":")[1]
-                        NumberOfMounts = ($OutputInfo[18] -split ":")[1]
-                        MacMountsAllowed = ($OutputInfo[19] -split ":")[1]
-                    }#new-Object
-                }
-                CATCH{
-                    Write-Warning -Message "PROCESS - Error on MediaID: $Media"
-                }
-            }#FOREACH ($Media in $MediaID)
-        }#IF $MediaID
-    }#process
+	BEGIN { Write-Verbose -Message "[BEGIN] Function Get-NetBackupJob - vmquery" }
+	PROCESS
+	{
+		TRY
+		{
+			IF ($PSBoundParameters['RobotNumber'] -and $PSboundParameters['PoolName'])
+			{
+				FOREACH ($RobotNo in $RobotNumber)
+				{
+					Write-Verbose -Message "[PROCESS] vmquery on RobotNumber $RobotNo and PoolName $PoolName"
+					$OutputInfo = (vmquery -rn $RobotNo)
+					# Get rid of empty spaces and replace by :
+					$OutputInfo = $OutputInfo -replace ":\s+", ":"
+					
+					# Add a comma at the end of each line to delimit each object (this is needed when the object $outputinfo is converted to STRING)
+					$OutputInfo = $OutputInfo -replace "\Z", ","
+					
+					#Convert to [string]
+					$OutputInfo = $OutputInfo -as [string]
+					
+					# Split each object
+					$OutputInfo = $OutputInfo -split "================================================================================,"
+					
+					foreach ($obj in $OutputInfo)
+					{
+						$obj = $obj -split ","
+						New-Object -TypeName PSObject -Property @{
+							MediaID = ($obj[0] -split ":")[1]
+							MediaType = ($obj[1] -split ":")[1]
+							Barcode = ($obj[2] -split ":")[1]
+							MediaDescription = ($obj[3] -split ":")[1]
+							VolumePool = ($obj[4] -split ":")[1]
+							RobotType = ($obj[5] -split ":")[1]
+							RobotNumber = ($obj[6] -split ":")[1]
+							RobotSlot = ($obj[7] -split ":")[1]
+							RobotControlHost = ($obj[8] -split ":")[1]
+							VolumeGroup = ($obj[9] -split ":")[1]
+							VaultName = ($obj[10] -split ":")[1]
+							VaultSentDate = ($obj[11] -split ":")[1]
+							VaultReturnDate = ($obj[12] -split ":")[1]
+							VaultSlot = ($obj[13] -split ":")[1]
+							VaultSessionID = ($obj[14] -split ":")[1]
+							VaultContainerID = ($obj[15] -split ":")[1]
+							CreatedDate = ($obj[16] -split ":")[1]
+							AssignedDate = ($obj[17] -split ":")[1]
+							FirstMountDate = ($obj[18] -split ":")[1]
+							ExpirationDate = ($obj[19] -split ":")[1]
+							NumberOfMounts = ($obj[20] -split ":")[1]
+							MacMountsAllowed = ($obj[21] -split ":")[1]
+							Status = ($obj[22] -split ":")[1]
+						} | Where-Object { $_.VolumePool -like "*$PoolName*" }
+					}#foreach ($obj in $OutputInfo)
+				}# FOREACH ($RobotNo in $RobotNumber)
+			} #IF ($RobotNumber -and $PoolName)
+			
+			IF ($PSBoundParameters['RobotNumber'] -and -not ($PSboundParameters['PoolName']))
+			{
+				FOREACH ($RobotNo in $RobotNumber)
+				{
+					Write-Verbose -Message "[PROCESS] vmquery on RobotNumber $RobotNo"
+					$OutputInfo = (vmquery -rn $RobotNo)
+					# Get rid of empty spaces and replace by :
+					$OutputInfo = $OutputInfo -replace ":\s+", ":"
+					
+					# Add a comma at the end of each line to delimit each object (this is needed when the object $outputinfo is converted to STRING)
+					$OutputInfo = $OutputInfo -replace "\Z", ","
+					
+					#Convert to [string]
+					$OutputInfo = $OutputInfo -as [string]
+					
+					# Split each object
+					$OutputInfo = $OutputInfo -split "================================================================================,"
+					
+					foreach ($obj in $OutputInfo)
+					{
+						$obj = $obj -split ","
+						New-Object -TypeName PSObject -Property @{
+							MediaID = ($obj[0] -split ":")[1]
+							MediaType = ($obj[1] -split ":")[1]
+							Barcode = ($obj[2] -split ":")[1]
+							MediaDescription = ($obj[3] -split ":")[1]
+							VolumePool = ($obj[4] -split ":")[1]
+							RobotType = ($obj[5] -split ":")[1]
+							RobotNumber = ($obj[6] -split ":")[1]
+							RobotSlot = ($obj[7] -split ":")[1]
+							RobotControlHost = ($obj[8] -split ":")[1]
+							VolumeGroup = ($obj[9] -split ":")[1]
+							VaultName = ($obj[10] -split ":")[1]
+							VaultSentDate = ($obj[11] -split ":")[1]
+							VaultReturnDate = ($obj[12] -split ":")[1]
+							VaultSlot = ($obj[13] -split ":")[1]
+							VaultSessionID = ($obj[14] -split ":")[1]
+							VaultContainerID = ($obj[15] -split ":")[1]
+							CreatedDate = ($obj[16] -split ":")[1]
+							AssignedDate = ($obj[17] -split ":")[1]
+							FirstMountDate = ($obj[18] -split ":")[1]
+							ExpirationDate = ($obj[19] -split ":")[1]
+							NumberOfMounts = ($obj[20] -split ":")[1]
+							MacMountsAllowed = ($obj[21] -split ":")[1]
+							Status = ($obj[22] -split ":")[1]
+						}#new-Object
+					}#foreach
+				}#FOREACH ($RobotNo in $RobotNumber)
+			}# IF ($RobotNumber -and -not($PoolName))
+			
+			IF ($PSboundParameters['PoolName'] -and -not ($PSBoundParameters['RobotNumber']))
+			{
+				Write-Verbose -Message "PROCESS - vmquery on PoolName: $poolname"
+				$OutputInfo = (vmquery -pn $PoolName)
+				
+				# Get rid of empty spaces and replace by :
+				$OutputInfo = $OutputInfo -replace ":\s+", ":"
+				
+				# Add a comma at the end of each line to delimit each object (this is needed when the object $outputinfo is converted to STRING)
+				$OutputInfo = $OutputInfo -replace "\Z", ","
+				
+				#Convert to [string]
+				$OutputInfo = $OutputInfo -as [string]
+				
+				# Split each object
+				$OutputInfo = $OutputInfo -split "================================================================================,"
+				
+				foreach ($obj in $OutputInfo)
+				{
+					$obj = $obj -split ","
+					New-Object -TypeName PSObject -Property @{
+						MediaID = ($obj[0] -split ":")[1]
+						MediaType = ($obj[1] -split ":")[1]
+						Barcode = ($obj[2] -split ":")[1]
+						MediaDescription = ($obj[3] -split ":")[1]
+						VolumePool = ($obj[4] -split ":")[1]
+						RobotType = ($obj[5] -split ":")[1]
+						VolumeGroup = ($obj[6] -split ":")[1]
+						VaultName = ($obj[7] -split ":")[1]
+						VaultSentDate = ($obj[8] -split ":")[1]
+						VaultReturnDate = ($obj[9] -split ":")[1]
+						VaultSlot = ($obj[10] -split ":")[1]
+						VaultSessionID = ($obj[11] -split ":")[1]
+						VaultContainerID = ($obj[12] -split ":")[1]
+						CreatedDate = ($obj[13] -split ":")[1]
+						AssignedDate = ($obj[14] -split ":")[1]
+						LastMountedDate = ($obj[15] -split ":")[1]
+						FirstMount = ($obj[16] -split ":")[1]
+						ExpirationDate = ($obj[17] -split ":")[1]
+						NumberOfMounts = ($obj[18] -split ":")[1]
+						MacMountsAllowed = ($obj[19] -split ":")[1]
+					}#new-Object
+				}#foreach
+			}#IF $Poolname
+			
+			IF ($PSboundParameters['MediaID'])
+			{
+				FOREACH ($Media in $MediaID)
+				{
+					TRY
+					{
+						Write-Verbose -Message "PROCESS - vmquery on MediaID: $Media"
+						#$OutputInfo = Invoke-command -ScriptBlock {(vmquery -m $Media 2>"$env:temp\netuser.err")}
+						$OutputInfo = vmquery -m $Media 2>"$env:temp\vmquery_media.err"
+						# Remove first and last line
+						$OutputInfo = $OutputInfo[1..($OutputInfo.count - 2)]
+						
+						# Get rid of empty spaces and replace by :
+						$OutputInfo = $OutputInfo -replace ":\s+", ":"
+						
+						# Add a comma at the end of each line to delimit each object (this is needed when the object $outputinfo is converted to STRING)
+						$OutputInfo = $OutputInfo -replace "\Z", ","
+						
+						# Convert to String
+						$OutputInfo = $OutputInfo -as [String]
+						
+						# Split on comma
+						$OutputInfo = $OutputInfo -split ","
+						
+						New-Object -TypeName PSObject -Property @{
+							MediaID = ($OutputInfo[0] -split ":")[1]
+							MediaType = ($OutputInfo[1] -split ":")[1]
+							Barcode = ($OutputInfo[2] -split ":")[1]
+							MediaDescription = ($OutputInfo[3] -split ":")[1]
+							VolumePool = ($OutputInfo[4] -split ":")[1]
+							RobotType = ($OutputInfo[5] -split ":")[1]
+							VolumeGroup = ($OutputInfo[6] -split ":")[1]
+							VaultName = ($OutputInfo[7] -split ":")[1]
+							VaultSentDate = ($OutputInfo[8] -split ":")[1]
+							VaultReturnDate = ($OutputInfo[9] -split ":")[1]
+							VaultSlot = ($OutputInfo[10] -split ":")[1]
+							VaultSessionID = ($OutputInfo[11] -split ":")[1]
+							VaultContainerID = ($OutputInfo[12] -split ":")[1]
+							CreatedDate = ($OutputInfo[13] -split ":")[1]
+							AssignedDate = ($OutputInfo[14] -split ":")[1]
+							LastMounted = ($OutputInfo[15] -split ":")[1]
+							FirstMount = ($OutputInfo[16] -split ":")[1]
+							ExpirationDate = ($OutputInfo[17] -split ":")[1]
+							NumberOfMounts = ($OutputInfo[18] -split ":")[1]
+							MacMountsAllowed = ($OutputInfo[19] -split ":")[1]
+						}#new-Object
+					}
+					CATCH
+					{
+						Write-Warning -Message "PROCESS - Error on MediaID: $Media"
+					}
+				}#FOREACH ($Media in $MediaID)
+			}#IF $MediaID
+		}
+		CATCH
+		{
+			Write-Warning -Message "[PROCESS] Something wrong happened"
+			Write-Warning -Message $Error[0].Exception.Message
+		}
+	}#PROCESS
+	END{Write-Verbose -Message "[END] Function Get-NetBackupJob - vmquery"}
 }#function Get-NetBackupVolume
 
 function Get-NetBackupProcess
@@ -1002,7 +1113,9 @@ OTHER_PROCESSES
 	https://github.com/lazywinadmin/NetBackupPS
 	
 	HISTORY
-	 1.0 2014/06/01 Initial Version
+	1.0 2014/06/01	Initial Version
+	1.1 2014/09/20  Add Errors handling and Verbose
+					Add Blocks BEGIN,PROCESS,END
 #>
 [CmdletBinding()]
 PARAM(
@@ -1047,13 +1160,16 @@ PARAM(
         "OTHER_PROCESSES")]
     [String]$ProcessGroup,
     [String[]]$ComputerName
-)
+	)
+	BEGIN { Write-Verbose -Message "[BEGIN] Function Get-NetBackupProcess - bpps.exe" }
     PROCESS{
         TRY {
-            IF ($ProcessGroup -and $ComputerName)
-            {
+            IF ($PSBoundParameters['ProcessGroup'] -and $PSBoundParameters['ComputerName'])
+			{
+				Write-Verbose -Message "[PROCESS] PARAM: ProcessGroup and $ComputerName"
                 FOREACH ($Computer in $ComputerName)
-                {
+				{
+					Write-Verbose -Message "[PROCESS] Working on $Computer"
                     $bpps = bpps -i $ProcessGroup $Computer
                     $bpps_server = ($bpps[0] -split "\s")[1]
                     $bpps = $bpps[2..$bpps.count]
@@ -1073,8 +1189,9 @@ PARAM(
                 }#FOREACH ($Computer in $ComputerName)
             }#IF ($ProcessGroup -and $ComputerName)
 
-            IF ($ProcessGroup -and -not$ComputerName)
-            {
+            IF ($PSBoundParameters['ProcessGroup'] -and -not($PSBoundParameters['ComputerName']))
+			{
+				Write-Verbose -Message "[PROCESS] PARAM: ProcessGroup"
                 $bpps = bpps -i $ProcessGroup
                 $bpps_server = ($bpps[0] -split "\s")[1]
                 $bpps = $bpps[2..$bpps.count]
@@ -1093,10 +1210,12 @@ PARAM(
                 }#Foreach
             }#IF ($ProcessGroup -and -not$ComputerName)
 
-            IF (-not$ProcessGroup -and $ComputerName)
-            {
+            IF (-not($PSBoundParameters['ProcessGroup']) -and $PSBoundParameters['ComputerName'])
+			{
+				Write-Verbose -Message "[PROCESS] PARAM: ComputerName"
                 FOREACH ($Computer in $ComputerName)
-                {
+				{
+					Write-Verbose -Message "[PROCESS] Working on $Computer"
                     $bpps = bpps $Computer
                     $bpps_server = ($bpps[0] -split "\s")[1]
                     $bpps = $bpps[2..$bpps.count]
@@ -1117,7 +1236,8 @@ PARAM(
             }#IF (-not$ProcessGroup -and $ComputerName)
 
             ELSE
-            {
+			{
+				Write-Verbose -Message "[PROCESS] No PARAM"
                 $bpps = bpps
                 $bpps_server = ($bpps[0] -split "\s")[1]
                 $bpps = $bpps[2..$bpps.count]
@@ -1137,13 +1257,14 @@ PARAM(
                     }#New-Object
                 }#Foreach
             } #ELSE
-        }
+        }#TRY
         CATCH
         {
-            Write-Warning -Message "PROCESS - Something wrong happened"
-        }
-    }#PROCESS
-
+			Write-Warning -Message "[PROCESS] Something wrong happened"
+			Write-Warning -Message $Error[0].Exception.Message
+        }#CATCH
+	}#PROCESS
+	END { Write-Verbose -Message "[END] Function Get-NetBackupProcess - bpps.exe" }
 }#function Get-NetBackupProcess
 
 function Get-NetBackupStatusCode
@@ -1169,23 +1290,24 @@ function Get-NetBackupStatusCode
 	@vN3rd
 	
 	HISTORY
-	 1.0 2014/08/22 Initial Version
-	
-	
+	1.0 2014/08/22	Initial Version
+	1.1	2014/09/21	Add Mandatory, Remove ParameterSetName
 #>
 	
 	[cmdletbinding()]
 	param (
-		[parameter(ParameterSetName = "StatusCode",
+		[parameter(Mandatory = $true,
 				   HelpMessage = "Enter status code number (ex: 15) ",
 				   ValueFromPipeline = $true,
 			 	   ValueFromPipelineByPropertyName = $true,
 				   Position = 0)]
 		[ValidateRange(0,255)]
 		[int]$StatusCode
-		
 	)
-	PROCESS{
+	BEGIN { Write-Verbose -Message "[BEGIN] Function Get-NetBackupStatusCode" }
+	PROCESS
+	{
+		Write-Verbose -Message "[PROCESS] StatusCode: $StatusCode"
 		Switch ($StatusCode)
 		{
 			0 { "The requested operation was successfully completed" }
@@ -1446,6 +1568,7 @@ function Get-NetBackupStatusCode
 			255 { "Unimplemented error code 255" }
 		}# end Switch
 	}# PROCESS
+	END { Write-Verbose -Message "[END] Function Get-NetBackupStatusCode" }
 }# Function Get-NetBackupStatusCode
 
 
