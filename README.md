@@ -14,7 +14,7 @@ ToDo
 - [x] Get-NetBackupJob
 - [x] Get-NetBackupPolicy
 - [x] Get-NetBackupProcess
-- [x] Get-NetBackupStatusCode (Thanks vN3rd)
+- [x] Get-NetBackupStatusCode (Thanks vScripter)
 - [x] Get-NetBackupTapeConfiguration
 - [x] Get-NetBackupVolume
 - [ ] Get-NetBackupAgent
