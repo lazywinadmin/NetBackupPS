@@ -17,6 +17,7 @@ ToDo
 - [x] Get-NetBackupStatusCode (Thanks vScripter)
 - [x] Get-NetBackupTapeConfiguration
 - [x] Get-NetBackupVolume
+- [X] Get-NetBackupVersion
 - [ ] Get-NetBackupAgent
 - [ ] Get-NetBackupAgentLogs
 - [ ] Install-NetBackupAgent
