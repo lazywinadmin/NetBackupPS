@@ -1,5 +1,4 @@
-Function Get-NetBackupPolicy
-{
+Function Get-NetBackupPolicy {
 <#
 .SYNOPSIS
    The function Get-NetBackupPolicy list all the policies from the Master Server
@@ -48,13 +47,10 @@ Function Get-NetBackupPolicy
 		[String]$ClientName
 	#>
 	)
-	BEGIN { Write-Verbose -Message "[BEGIN] Function Get-NetBackupPolicy - bppllist.exe"}
-	PROCESS
-	{
-		TRY
-		{
-			IF ($PSboundparameters['AllPolicies'])
-			{
+	BEGIN { Write-Verbose -Message "[BEGIN] Function Get-NetBackupPolicy - bppllist.exe" }
+	PROCESS {
+		TRY {
+			IF ($PSboundparameters['AllPolicies']) {
 				# List the Policies
 				Write-Verbose -Message "[PROCESS] PARAM: AllPolicies"
 				$bppllist = (bppllist -allpolicies) -as [String]
@@ -62,8 +58,7 @@ Function Get-NetBackupPolicy
 				# Split the Policies
 				$bppllist = $bppllist -split "CLASS\s"
 				
-				FOREACH ($policy in $bppllist)
-				{
+				FOREACH ($policy in $bppllist) {
 					#http://www.symantec.com/business/support/index?page=content&id=HOWTO90333
 					New-Object -TypeName PSObject -Property @{
 						PolicyName = ($policy[0] -split " ")[0]
@@ -78,23 +73,19 @@ Function Get-NetBackupPolicy
 					}
 				}
 				
-			}
-			ELSE
-			{
+			} ELSE {
 				
 				# List the Policies
 				Write-Verbose -Message "[PROCESS] NO PARAM"
 				$bppllist = bppllist
-				FOREACH ($policy in $bppllist)
-				{
+				FOREACH ($policy in $bppllist) {
 					New-Object -TypeName PSObject -Property @{
 						PolicyName = $policy
 					}
 				}
 			}
 		}#TRY
-		CATCH
-		{
+		CATCH {
 			Write-Warning -Message "[PROCESS] Something wrong happened"
 			Write-Warning -Message $Error[0].Exception.Message
 		}
@@ -102,8 +93,7 @@ Function Get-NetBackupPolicy
 	END { Write-Verbose -Message "[END] Function Get-NetBackupPolicy" }
 }#Get-NetBackupPolicy
 
-Function Get-NetBackupClient
-{
+Function Get-NetBackupClient {
 <#
 .SYNOPSIS
    The function Get-NetbackupClient list all the client known from the Master Server
@@ -131,17 +121,14 @@ Function Get-NetBackupClient
 	[CmdletBinding()]
 	PARAM ()
 	BEGIN { Write-Verbose -Message "[BEGIN] Function Get-NetBackupClient - bpplclients.exe" }
-	PROCESS
-	{
-		TRY
-		{
+	PROCESS {
+		TRY {
 			# Get the client list for the command bpplclients
 			Write-Verbose -Message "[PROCESS] Querying Bpplclients..."
 			$bpplclients = bpplclients.exe
 			
 			Write-Verbose -Message "[PROCESS] Formatting and Output result..."
-			Foreach ($client in (($bpplclients)[2..($bpplclients.count)]))
-			{
+			Foreach ($client in (($bpplclients)[2..($bpplclients.count)])) {
 				
 				# Remove the white spaces, replace by space character
 				$client = $client -replace '\s+', ' '
@@ -156,8 +143,7 @@ Function Get-NetBackupClient
 				}
 			}#Foreach
 		}#TRY
-		CATCH
-		{
+		CATCH {
 			Write-Warning -Message "[PROCESS] Something wrong happened"
 			Write-Warning -Message $Error[0].Exception.Message
 		}
@@ -165,8 +151,7 @@ Function Get-NetBackupClient
 	END { Write-Verbose -Message "[END] Function Get-NetBackupClient" }
 }#Get-NetBackupClient
 
-function Get-NetBackupGlobalConfiguration
-{
+function Get-NetBackupGlobalConfiguration {
 <#
 .SYNOPSIS
 	Display global configuration attributes for NetBackup
@@ -199,7 +184,7 @@ function Get-NetBackupGlobalConfiguration
 #>
 	[CmdletBinding()]
 	PARAM (
-		[Parameter(ParameterSetName="DisplayFormat",Mandatory=$true)]
+		[Parameter(ParameterSetName = "DisplayFormat", Mandatory = $true)]
 		[switch]$DisplayFormat,
 		[Parameter(ParameterSetName = "LongFormat", Mandatory = $true)]
 		[switch]$LongFormat,
@@ -207,14 +192,11 @@ function Get-NetBackupGlobalConfiguration
 		[switch]$ShortFormat
 	)
 	BEGIN { Write-Verbose -Message "[BEGIN] Function Get-NetBackupGlobalConfiguration - bpconfig.exe" }
-	PROCESS
-	{
-		TRY
-		{
+	PROCESS {
+		TRY {
 			Write-Verbose -Message "[PROCESS] Display global configuration attributes for NetBackup"
 			
-			IF ($PSBoundParameters['DisplayFormat'])
-			{
+			IF ($PSBoundParameters['DisplayFormat']) {
 				Write-Verbose -Message "[PROCESS] PARAM: DisplayFormat"
 				$bpconfig = bpconfig -U
 				New-Object -TypeName PSObject -Property @{
@@ -237,8 +219,7 @@ function Get-NetBackupGlobalConfiguration
 				}
 				
 			}
-			IF ($PSBoundParameters['LongFormat'])
-			{
+			IF ($PSBoundParameters['LongFormat']) {
 				Write-Verbose -Message "[PROCESS] PARAM: LongFormat"
 				$bpconfig = bpconfig -L
 				New-Object -TypeName PSObject -Property @{
@@ -261,8 +242,7 @@ function Get-NetBackupGlobalConfiguration
 				}
 				
 			}
-			IF ($PSBoundParameters['ShortFormat'])
-			{
+			IF ($PSBoundParameters['ShortFormat']) {
 				Write-Verbose -Message "[PROCESS] PARAM: ShortFormat"
 				$bpconfig = bpconfig -l
 				$bpconfig = $bpconfig -split " "
@@ -287,8 +267,7 @@ function Get-NetBackupGlobalConfiguration
 				}
 			}
 		}#TRY
-		CATCH
-		{
+		CATCH {
 			Write-Warning -Message "[PROCESS] Something wrong happened"
 			Write-Warning -Message $Error[0].Exception.Message
 		}
@@ -296,8 +275,7 @@ function Get-NetBackupGlobalConfiguration
 	END { Write-Verbose -Message "[END] Function Get-NetBackupGlobalConfiguration - bpconfig.exe" }
 }#Get-NetBackupGlobalConfiguration
 
-function Get-NetBackupTapeConfiguration
-{
+function Get-NetBackupTapeConfiguration {
 <#
 .SYNOPSIS
     This function displays the Tape Configuration (tpconfig)
@@ -344,18 +322,15 @@ VirtualMachineHostName : fx-vcenter03
 					Add Blocks BEGIN,PROCESS,END
 
 #>
-[CmdletBinding()]
-PARAM(
-    [Parameter(ParameterSetName="VMCred",Mandatory = $true)]
-    [Switch]$VirtualMachineCredential
+	[CmdletBinding()]
+	PARAM (
+		[Parameter(ParameterSetName = "VMCred", Mandatory = $true)]
+		[Switch]$VirtualMachineCredential
 	)
 	BEGIN { Write-Verbose -Message "[BEGIN] Function Get-NetBackupTapeConfiguration - tpconfig.exe" }
-	PROCESS
-	{
-		TRY
-		{
-			IF ($PSBoundParameters['VirtualMachineCredential'])
-			{
+	PROCESS {
+		TRY {
+			IF ($PSBoundParameters['VirtualMachineCredential']) {
 				Write-Verbose -Message "[PROCESS] Getting VirtualMachine Credentials"
 				$OutputInfo = (tpconfig -dvirtualmachines)
 				
@@ -374,11 +349,9 @@ PARAM(
 				
 				$OutputInfo = ($OutputInfo[1..($OutputInfo.count - 1)])
 				
-				FOREACH ($obj in $OutputInfo)
-				{
+				FOREACH ($obj in $OutputInfo) {
 					$obj = $obj -split ","
-					$SubTypeName = switch (($obj[2] -split ":")[1])
-					{
+					$SubTypeName = switch (($obj[2] -split ":")[1]) {
 						"(1)" { "VMware" }
 						"(2)" { "VMware ESX Servers" }
 						"(3)" { "VMware Converter Servers" }
@@ -393,9 +366,7 @@ PARAM(
 					} #NEW-OBJET
 				} #FOREACH
 			}#IF
-		}
-		CATCH
-		{
+		} CATCH {
 			Write-Warning -Message "[PROCESS] Something wrong happened"
 			Write-Warning -Message $Error[0].Exception.Message
 		}
@@ -403,8 +374,7 @@ PARAM(
 	END { Write-Verbose -Message "[END] Function Get-NetBackupTapeConfiguration - tpconfig.exe" }
 }#Get-NetBackupTapeConfiguration
 
-function Get-NetBackupDiskMedia
-{
+function Get-NetBackupDiskMedia {
 <#
 .SYNOPSIS
    The function Get-NetbackupDiskMedia list information related to the Disk Media
@@ -442,26 +412,23 @@ function Get-NetBackupDiskMedia
 	1.1 2014/09/20  Add Errors handling and Verbose
 					Add Blocks BEGIN,PROCESS,END
 #>
-
-[CmdletBinding(DefaultParameterSetName = "StorageServer")]
-PARAM(
-    [Parameter(ParameterSetName="StorageServer",Mandatory = $true)]
-    [Switch]$StorageServer,
-    [Parameter(ParameterSetName="DiskPool",Mandatory = $true)]
-    [Switch]$DiskPool,
-    [Parameter(ParameterSetName="Mount",Mandatory = $true)]
-    [Switch]$Mount
-    )
+	
+	[CmdletBinding(DefaultParameterSetName = "StorageServer")]
+	PARAM (
+		[Parameter(ParameterSetName = "StorageServer", Mandatory = $true)]
+		[Switch]$StorageServer,
+		[Parameter(ParameterSetName = "DiskPool", Mandatory = $true)]
+		[Switch]$DiskPool,
+		[Parameter(ParameterSetName = "Mount", Mandatory = $true)]
+		[Switch]$Mount
+	)
 	BEGIN { Write-Verbose -Message "[BEGIN] Function Get-NetBackupDiskMedia - nbdevquery.exe" }
-    PROCESS{
-		TRY
-		{
-			IF ($PSBoundParameters['StorageServer'])
-			{
+	PROCESS {
+		TRY {
+			IF ($PSBoundParameters['StorageServer']) {
 				Write-Verbose -Message "[PROCESS] PARAM: StorageServer"
 				$nbdevquery = nbdevquery -liststs
-				Foreach ($Obj in $nbdevquery)
-				{
+				Foreach ($Obj in $nbdevquery) {
 					$obj = $obj -split "\s"
 					New-Object -TypeName PSObject -Property @{
 						Version = $Obj[0]
@@ -471,12 +438,10 @@ PARAM(
 					}
 				}
 			}
-			IF ($PSBoundParameters['DiskPool'])
-			{
+			IF ($PSBoundParameters['DiskPool']) {
 				Write-Verbose -Message "[PROCESS] PARAM: DiskPool"
 				$nbdevquery = nbdevquery -listdp
-				Foreach ($Obj in $nbdevquery)
-				{
+				Foreach ($Obj in $nbdevquery) {
 					$obj = $obj -split "\s"
 					New-Object -TypeName PSObject -Property @{
 						Version = $Obj[0]
@@ -492,15 +457,12 @@ PARAM(
 					}
 				}
 			}
-			IF ($PSBoundParameters['Mount'])
-			{
+			IF ($PSBoundParameters['Mount']) {
 				Write-Verbose -Message "[PROCESS] PARAM: Mount"
 				$nbdevquery = (nbdevquery -listmounts) -as [String]
-				foreach ($obj in $nbdevquery -split '\)\s')
-				{
+				foreach ($obj in $nbdevquery -split '\)\s') {
 					$obj = $obj -split '\s+'
-					if ($obj[10] -like "*mounted*") { $mounted = $true }
-					else { $mounted = $false }
+					if ($obj[10] -like "*mounted*") { $mounted = $true } else { $mounted = $false }
 					New-Object -TypeName PSObject -Property @{
 						DiskPool = $obj[2]
 						MountPointCount = $obj[4]
@@ -511,16 +473,14 @@ PARAM(
 				}
 			}
 		}#TRY
-		CATCH
-		{
+		CATCH {
 			Write-Warning -Message "[PROCESS] Something wrong happened"
 			Write-Warning -Message $Error[0].Exception.Message
 		}
 	}#PROCESS
 	END { Write-Verbose -Message "[END] Function Get-NetBackupDiskMedia - nbdevquery.exe" }
 }
-function Get-NetBackupJob
-{
+function Get-NetBackupJob {
 <#
 .SYNOPSIS
    This function interacts with NetBackup jobs database (bpdbjobs)
@@ -571,24 +531,21 @@ function Get-NetBackupJob
 	1.1 2014/09/20  Add Errors handling and Verbose
 					Add Blocks BEGIN,PROCESS,END
 #>
-[CmdletBinding()]
-PARAM(
-    [Parameter(ParameterSetName="Summary",Mandatory = $true)]
-    [Switch]$Summary,
-    [Parameter(ParameterSetName="Full",Mandatory = $true)]
-    [Switch]$Full,
-    [Parameter(ParameterSetName="Full")]
-    [DateTime]$TimeStamp,
-    [Parameter(ParameterSetName="JobID",Mandatory = $true)]
-    [String[]]$JobId
+	[CmdletBinding()]
+	PARAM (
+		[Parameter(ParameterSetName = "Summary", Mandatory = $true)]
+		[Switch]$Summary,
+		[Parameter(ParameterSetName = "Full", Mandatory = $true)]
+		[Switch]$Full,
+		[Parameter(ParameterSetName = "Full")]
+		[DateTime]$TimeStamp,
+		[Parameter(ParameterSetName = "JobID", Mandatory = $true)]
+		[String[]]$JobId
 	)
 	BEGIN { Write-Verbose -Message "[BEGIN] Function Get-NetBackupJob - bpdbjobs.exe" }
-	PROCESS
-	{
-		TRY
-		{
-			if ($PSBoundParameters['Summary'])
-			{
+	PROCESS {
+		TRY {
+			if ($PSBoundParameters['Summary']) {
 				Write-Verbose -Message "[PROCESS] PARAM: Summary"
 				$bpdpjobs = bpdbjobs -summary
 				$obj = $bpdpjobs[1] -split '\s+'
@@ -606,36 +563,29 @@ PARAM(
 					Total = $obj[10]
 				}
 			}
-			IF ($PSBoundParameters['Full'])
-			{
+			IF ($PSBoundParameters['Full']) {
 				Write-Verbose -Message "[PROCESS] PARAM: Full"
 				
-				IF ($PSBoundParameters['TimeStamp'])
-				{
+				IF ($PSBoundParameters['TimeStamp']) {
 					Write-Verbose -Message "[PROCESS] PARAM: TimeStamp"
 					$DateTime = $TimeStamp -f 'MM/dd/yyyy hh:mm:ss'
 					(bpdbjobs -all_columns -t $DateTime) |
 					ConvertFrom-Csv -Delimiter "," -header jobid, jobtype, state, status, policy, schedule, client, server, started, elapsed, ended, stunit, try, operation, kbytes, files, pathlastwritten, percent, jobpid, owner, subtype, classtype, schedule_type, priority, group, masterserver, retentionunits, retentionperiod, compression, kbyteslastwritten, fileslastwritten, filelistcount, [files], trycount, [trypid, trystunit, tryserver, trystarted, tryelapsed, tryended, trystatus, trystatusdescription, trystatuscount, [trystatuslines], trybyteswritten, tryfileswritten], parentjob, kbpersec, copy, robot, vault, profile, session, ejecttapes, srcstunit, srcserver, srcmedia, dstmedia, stream, suspendable, resumable, restartable, datamovement, snapshot, backupid, killable, controllinghost
-				}
-				ELSE
-				{
+				} ELSE {
 					(bpdbjobs -all_columns) |
 					ConvertFrom-Csv -Delimiter "," -header jobid, jobtype, state, status, policy, schedule, client, server, started, elapsed, ended, stunit, try, operation, kbytes, files, pathlastwritten, percent, jobpid, owner, subtype, classtype, schedule_type, priority, group, masterserver, retentionunits, retentionperiod, compression, kbyteslastwritten, fileslastwritten, filelistcount, [files], trycount, [trypid, trystunit, tryserver, trystarted, tryelapsed, tryended, trystatus, trystatusdescription, trystatuscount, [trystatuslines], trybyteswritten, tryfileswritten], parentjob, kbpersec, copy, robot, vault, profile, session, ejecttapes, srcstunit, srcserver, srcmedia, dstmedia, stream, suspendable, resumable, restartable, datamovement, snapshot, backupid, killable, controllinghost
 				}
 			}#IF $Full
-			IF ($PSBoundParameters['JobId'])
-			{
+			IF ($PSBoundParameters['JobId']) {
 				Write-Verbose -Message "[PROCESS] PARAM: JobID"
-				FOREACH ($JobObj in $jobID)
-				{
+				FOREACH ($JobObj in $jobID) {
 					Write-Verbose -Message "[PROCESS] JobID:$jobID"
 					(bpdbjobs -jobid $JobObj -all_columns) |
 					ConvertFrom-Csv -Delimiter "," -header jobid, jobtype, state, status, policy, schedule, client, server, started, elapsed, ended, stunit, try, operation, kbytes, files, pathlastwritten, percent, jobpid, owner, subtype, classtype, schedule_type, priority, group, masterserver, retentionunits, retentionperiod, compression, kbyteslastwritten, fileslastwritten, filelistcount, [files], trycount, [trypid, trystunit, tryserver, trystarted, tryelapsed, tryended, trystatus, trystatusdescription, trystatuscount, [trystatuslines], trybyteswritten, tryfileswritten], parentjob, kbpersec, copy, robot, vault, profile, session, ejecttapes, srcstunit, srcserver, srcmedia, dstmedia, stream, suspendable, resumable, restartable, datamovement, snapshot, backupid, killable, controllinghost
 				}
 			}
 		}#TRY
-		CATCH
-		{
+		CATCH {
 			Write-Warning -Message "[PROCESS] Something wrong happened"
 			Write-Warning -Message $Error[0].Exception.Message
 		}#CATCH
@@ -643,8 +593,7 @@ PARAM(
 	END { Write-Verbose -Message "[END] Function Get-NetBackupJob - bpdbjobs.exe" }
 }#function Get-NetBackupJob
 
-function Get-NetBackupVolume
-{
+function Get-NetBackupVolume {
 <#
 .SYNOPSIS
    This function queries the EMM database for volume information (vmquery)
@@ -794,25 +743,21 @@ MediaID          : DD0005
 	1.1 2014/09/20  Add Errors handling and Verbose
 					Add Blocks BEGIN,PROCESS,END
 #>
-[CmdletBinding(DefaultParametersetName="MediaID")]
-PARAM(
-    [Parameter(ParameterSetName="PoolName")]
-    [String]$PoolName,
-    [Parameter(ParameterSetName="PoolName")]
-    [Int[]]$RobotNumber,
-    [Parameter(ParameterSetName="MediaID",Mandatory = $true)]
-    [ValidateLength(1,6)]
-    [String[]]$MediaID
-    )
+	[CmdletBinding(DefaultParametersetName = "MediaID")]
+	PARAM (
+		[Parameter(ParameterSetName = "PoolName")]
+		[String]$PoolName,
+		[Parameter(ParameterSetName = "PoolName")]
+		[Int[]]$RobotNumber,
+		[Parameter(ParameterSetName = "MediaID", Mandatory = $true)]
+		[ValidateLength(1, 6)]
+		[String[]]$MediaID
+	)
 	BEGIN { Write-Verbose -Message "[BEGIN] Function Get-NetBackupJob - vmquery" }
-	PROCESS
-	{
-		TRY
-		{
-			IF ($PSBoundParameters['RobotNumber'] -and $PSboundParameters['PoolName'])
-			{
-				FOREACH ($RobotNo in $RobotNumber)
-				{
+	PROCESS {
+		TRY {
+			IF ($PSBoundParameters['RobotNumber'] -and $PSboundParameters['PoolName']) {
+				FOREACH ($RobotNo in $RobotNumber) {
 					Write-Verbose -Message "[PROCESS] vmquery on RobotNumber $RobotNo and PoolName $PoolName"
 					$OutputInfo = (vmquery -rn $RobotNo)
 					# Get rid of empty spaces and replace by :
@@ -827,8 +772,7 @@ PARAM(
 					# Split each object
 					$OutputInfo = $OutputInfo -split "================================================================================,"
 					
-					foreach ($obj in $OutputInfo)
-					{
+					foreach ($obj in $OutputInfo) {
 						$obj = $obj -split ","
 						New-Object -TypeName PSObject -Property @{
 							MediaID = ($obj[0] -split ":")[1]
@@ -859,10 +803,8 @@ PARAM(
 				}# FOREACH ($RobotNo in $RobotNumber)
 			} #IF ($RobotNumber -and $PoolName)
 			
-			IF ($PSBoundParameters['RobotNumber'] -and -not ($PSboundParameters['PoolName']))
-			{
-				FOREACH ($RobotNo in $RobotNumber)
-				{
+			IF ($PSBoundParameters['RobotNumber'] -and -not ($PSboundParameters['PoolName'])) {
+				FOREACH ($RobotNo in $RobotNumber) {
 					Write-Verbose -Message "[PROCESS] vmquery on RobotNumber $RobotNo"
 					$OutputInfo = (vmquery -rn $RobotNo)
 					# Get rid of empty spaces and replace by :
@@ -877,8 +819,7 @@ PARAM(
 					# Split each object
 					$OutputInfo = $OutputInfo -split "================================================================================,"
 					
-					foreach ($obj in $OutputInfo)
-					{
+					foreach ($obj in $OutputInfo) {
 						$obj = $obj -split ","
 						New-Object -TypeName PSObject -Property @{
 							MediaID = ($obj[0] -split ":")[1]
@@ -909,8 +850,7 @@ PARAM(
 				}#FOREACH ($RobotNo in $RobotNumber)
 			}# IF ($RobotNumber -and -not($PoolName))
 			
-			IF ($PSboundParameters['PoolName'] -and -not ($PSBoundParameters['RobotNumber']))
-			{
+			IF ($PSboundParameters['PoolName'] -and -not ($PSBoundParameters['RobotNumber'])) {
 				Write-Verbose -Message "PROCESS - vmquery on PoolName: $poolname"
 				$OutputInfo = (vmquery -pn $PoolName)
 				
@@ -926,8 +866,7 @@ PARAM(
 				# Split each object
 				$OutputInfo = $OutputInfo -split "================================================================================,"
 				
-				foreach ($obj in $OutputInfo)
-				{
+				foreach ($obj in $OutputInfo) {
 					$obj = $obj -split ","
 					New-Object -TypeName PSObject -Property @{
 						MediaID = ($obj[0] -split ":")[1]
@@ -954,12 +893,9 @@ PARAM(
 				}#foreach
 			}#IF $Poolname
 			
-			IF ($PSboundParameters['MediaID'])
-			{
-				FOREACH ($Media in $MediaID)
-				{
-					TRY
-					{
+			IF ($PSboundParameters['MediaID']) {
+				FOREACH ($Media in $MediaID) {
+					TRY {
 						Write-Verbose -Message "PROCESS - vmquery on MediaID: $Media"
 						#$OutputInfo = Invoke-command -ScriptBlock {(vmquery -m $Media 2>"$env:temp\netuser.err")}
 						$OutputInfo = vmquery -m $Media 2>"$env:temp\vmquery_media.err"
@@ -1000,25 +936,20 @@ PARAM(
 							NumberOfMounts = ($OutputInfo[18] -split ":")[1]
 							MacMountsAllowed = ($OutputInfo[19] -split ":")[1]
 						}#new-Object
-					}
-					CATCH
-					{
+					} CATCH {
 						Write-Warning -Message "PROCESS - Error on MediaID: $Media"
 					}
 				}#FOREACH ($Media in $MediaID)
 			}#IF $MediaID
-		}
-		CATCH
-		{
+		} CATCH {
 			Write-Warning -Message "[PROCESS] Something wrong happened"
 			Write-Warning -Message $Error[0].Exception.Message
 		}
 	}#PROCESS
-	END{Write-Verbose -Message "[END] Function Get-NetBackupJob - vmquery"}
+	END { Write-Verbose -Message "[END] Function Get-NetBackupJob - vmquery" }
 }#function Get-NetBackupVolume
 
-function Get-NetBackupProcess
-{
+function Get-NetBackupProcess {
 <#
 .SYNOPSIS
    This function list all processes and statistics for each process (bpps)
@@ -1120,158 +1051,146 @@ OTHER_PROCESSES
 	1.1 2014/09/20  Add Errors handling and Verbose
 					Add Blocks BEGIN,PROCESS,END
 #>
-[CmdletBinding()]
-PARAM(
-    [Parameter()]
-    [ValidateSet(
-        "MM_ALL",
-        "MM_CLIS",
-        "MM_CORE",
-        "MM_GUIS",
-        "MM_SERVICES",
-        "MM_UIS",
-        "MM_WORKERS",
-        "NB_ALL",
-        "NB_ALL_CLIS",
-        "NB_ALL_CORE",
-        "NB_ALL_GUIS",
-        "NB_ALL_SERVICES",
-        "NB_ALL_UIS",
-        "NB_ALL_WORKERS",
-        "NB_CLIENT_ALL",
-        "NB_CLIENT_CLIS",
-        "NB_CLIENT_CORE",
-        "NB_CLIENT_GUIS",
-        "NB_CLIENT_SERVICES",
-        "NB_CLIENT_UIS",
-        "NB_CLIENT_WORKERS",
-        "NB_SERVER_ALL",
-        "NB_SERVER_CLIS",
-        "NB_SERVER_CORE",
-        "NB_SERVER_GUIS",
-        "NB_SERVER_SERVICES",
-        "NB_SERVER_UIS",
-        "NB_SERVER_WORKERS",
-        "NBDB_SERVICES",
-        "NBDB_CLIS",
-        "NBDB_ALL",
-        "VLT_CORE",
-        "VLT_GUIS",
-        "VLT_CLIS",
-        "VLT_UIS",
-        "VLT_ALL",
-        "OTHER_PROCESSES")]
-    [String]$ProcessGroup,
-    [String[]]$ComputerName
+	[CmdletBinding()]
+	PARAM (
+		[Parameter()]
+		[ValidateSet(
+					 "MM_ALL",
+					 "MM_CLIS",
+					 "MM_CORE",
+					 "MM_GUIS",
+					 "MM_SERVICES",
+					 "MM_UIS",
+					 "MM_WORKERS",
+					 "NB_ALL",
+					 "NB_ALL_CLIS",
+					 "NB_ALL_CORE",
+					 "NB_ALL_GUIS",
+					 "NB_ALL_SERVICES",
+					 "NB_ALL_UIS",
+					 "NB_ALL_WORKERS",
+					 "NB_CLIENT_ALL",
+					 "NB_CLIENT_CLIS",
+					 "NB_CLIENT_CORE",
+					 "NB_CLIENT_GUIS",
+					 "NB_CLIENT_SERVICES",
+					 "NB_CLIENT_UIS",
+					 "NB_CLIENT_WORKERS",
+					 "NB_SERVER_ALL",
+					 "NB_SERVER_CLIS",
+					 "NB_SERVER_CORE",
+					 "NB_SERVER_GUIS",
+					 "NB_SERVER_SERVICES",
+					 "NB_SERVER_UIS",
+					 "NB_SERVER_WORKERS",
+					 "NBDB_SERVICES",
+					 "NBDB_CLIS",
+					 "NBDB_ALL",
+					 "VLT_CORE",
+					 "VLT_GUIS",
+					 "VLT_CLIS",
+					 "VLT_UIS",
+					 "VLT_ALL",
+					 "OTHER_PROCESSES")]
+		[String]$ProcessGroup,
+		[String[]]$ComputerName
 	)
 	BEGIN { Write-Verbose -Message "[BEGIN] Function Get-NetBackupProcess - bpps.exe" }
-    PROCESS{
-        TRY {
-            IF ($PSBoundParameters['ProcessGroup'] -and $PSBoundParameters['ComputerName'])
-			{
+	PROCESS {
+		TRY {
+			IF ($PSBoundParameters['ProcessGroup'] -and $PSBoundParameters['ComputerName']) {
 				Write-Verbose -Message "[PROCESS] PARAM: ProcessGroup and $ComputerName"
-                FOREACH ($Computer in $ComputerName)
-				{
+				FOREACH ($Computer in $ComputerName) {
 					Write-Verbose -Message "[PROCESS] Working on $Computer"
-                    $bpps = bpps -i $ProcessGroup $Computer
-                    $bpps_server = ($bpps[0] -split "\s")[1]
-                    $bpps = $bpps[2..$bpps.count]
-                    foreach ($obj in $bpps)
-                    {
-                        $obj = $obj -split "\s{2,}"
-                        New-Object -TypeName PSObject -Property @{
-                            ComputerName = $bpps_server
-                            Name = $obj[0]
-                            Pid = $obj[1]
-                            Load = $obj[2]
-                            Time = $obj[3]
-                            MemMB = $obj[4] -replace "M",""
-                            Start = $obj[5]
-                        }#New-Object
-                    }#Foreach
-                }#FOREACH ($Computer in $ComputerName)
-            }#IF ($ProcessGroup -and $ComputerName)
-
-            IF ($PSBoundParameters['ProcessGroup'] -and -not($PSBoundParameters['ComputerName']))
-			{
+					$bpps = bpps -i $ProcessGroup $Computer
+					$bpps_server = ($bpps[0] -split "\s")[1]
+					$bpps = $bpps[2..$bpps.count]
+					foreach ($obj in $bpps) {
+						$obj = $obj -split "\s{2,}"
+						New-Object -TypeName PSObject -Property @{
+							ComputerName = $bpps_server
+							Name = $obj[0]
+							Pid = $obj[1]
+							Load = $obj[2]
+							Time = $obj[3]
+							MemMB = $obj[4] -replace "M", ""
+							Start = $obj[5]
+						}#New-Object
+					}#Foreach
+				}#FOREACH ($Computer in $ComputerName)
+			}#IF ($ProcessGroup -and $ComputerName)
+			
+			IF ($PSBoundParameters['ProcessGroup'] -and -not ($PSBoundParameters['ComputerName'])) {
 				Write-Verbose -Message "[PROCESS] PARAM: ProcessGroup"
-                $bpps = bpps -i $ProcessGroup
-                $bpps_server = ($bpps[0] -split "\s")[1]
-                $bpps = $bpps[2..$bpps.count]
-                foreach ($obj in $bpps)
-                {
-                    $obj = $obj -split "\s{2,}"
-                    New-Object -TypeName PSObject -Property @{
-                        ComputerName = $bpps_server
-                        Name = $obj[0]
-                        Pid = $obj[1]
-                        Load = $obj[2]
-                        Time = $obj[3]
-                        MemMB = $obj[4] -replace "M",""
-                        Start = $obj[5]
-                    }#New-Object
-                }#Foreach
-            }#IF ($ProcessGroup -and -not$ComputerName)
-
-            IF (-not($PSBoundParameters['ProcessGroup']) -and $PSBoundParameters['ComputerName'])
-			{
+				$bpps = bpps -i $ProcessGroup
+				$bpps_server = ($bpps[0] -split "\s")[1]
+				$bpps = $bpps[2..$bpps.count]
+				foreach ($obj in $bpps) {
+					$obj = $obj -split "\s{2,}"
+					New-Object -TypeName PSObject -Property @{
+						ComputerName = $bpps_server
+						Name = $obj[0]
+						Pid = $obj[1]
+						Load = $obj[2]
+						Time = $obj[3]
+						MemMB = $obj[4] -replace "M", ""
+						Start = $obj[5]
+					}#New-Object
+				}#Foreach
+			}#IF ($ProcessGroup -and -not$ComputerName)
+			
+			IF (-not ($PSBoundParameters['ProcessGroup']) -and $PSBoundParameters['ComputerName']) {
 				Write-Verbose -Message "[PROCESS] PARAM: ComputerName"
-                FOREACH ($Computer in $ComputerName)
-				{
+				FOREACH ($Computer in $ComputerName) {
 					Write-Verbose -Message "[PROCESS] Working on $Computer"
-                    $bpps = bpps $Computer
-                    $bpps_server = ($bpps[0] -split "\s")[1]
-                    $bpps = $bpps[2..$bpps.count]
-                    foreach ($obj in $bpps)
-                    {
-                        $obj = $obj -split "\s{2,}"
-                        New-Object -TypeName PSObject -Property @{
-                            ComputerName = $bpps_server
-                            Name = $obj[0]
-                            Pid = $obj[1]
-                            Load = $obj[2]
-                            Time = $obj[3]
-                            MemMB = $obj[4] -replace "M",""
-                            Start = $obj[5]
-                        }#New-Object
-                    }#Foreach
-                }#FOREACH ($Computer in $ComputerName)
-            }#IF (-not$ProcessGroup -and $ComputerName)
-
-            ELSE
-			{
+					$bpps = bpps $Computer
+					$bpps_server = ($bpps[0] -split "\s")[1]
+					$bpps = $bpps[2..$bpps.count]
+					foreach ($obj in $bpps) {
+						$obj = $obj -split "\s{2,}"
+						New-Object -TypeName PSObject -Property @{
+							ComputerName = $bpps_server
+							Name = $obj[0]
+							Pid = $obj[1]
+							Load = $obj[2]
+							Time = $obj[3]
+							MemMB = $obj[4] -replace "M", ""
+							Start = $obj[5]
+						}#New-Object
+					}#Foreach
+				}#FOREACH ($Computer in $ComputerName)
+			}#IF (-not$ProcessGroup -and $ComputerName)
+			
+			ELSE {
 				Write-Verbose -Message "[PROCESS] No PARAM"
-                $bpps = bpps
-                $bpps_server = ($bpps[0] -split "\s")[1]
-                $bpps = $bpps[2..$bpps.count]
-
-                foreach ($obj in $bpps)
-                {
-                    $obj = $obj -split "\s{2,}"
-                    New-Object -TypeName PSObject -Property @{
-                        ComputerName = $bpps_server
-                        Name = $obj[0]
-                        Pid = $obj[1]
-                        Load = $obj[2]
-                        Time = $obj[3]
-                        MemMB = $obj[4] -replace "M",""
-                        Start = $obj[5]
-            
-                    }#New-Object
-                }#Foreach
-            } #ELSE
-        }#TRY
-        CATCH
-        {
+				$bpps = bpps
+				$bpps_server = ($bpps[0] -split "\s")[1]
+				$bpps = $bpps[2..$bpps.count]
+				
+				foreach ($obj in $bpps) {
+					$obj = $obj -split "\s{2,}"
+					New-Object -TypeName PSObject -Property @{
+						ComputerName = $bpps_server
+						Name = $obj[0]
+						Pid = $obj[1]
+						Load = $obj[2]
+						Time = $obj[3]
+						MemMB = $obj[4] -replace "M", ""
+						Start = $obj[5]
+						
+					}#New-Object
+				}#Foreach
+			} #ELSE
+		}#TRY
+		CATCH {
 			Write-Warning -Message "[PROCESS] Something wrong happened"
 			Write-Warning -Message $Error[0].Exception.Message
-        }#CATCH
+		}#CATCH
 	}#PROCESS
 	END { Write-Verbose -Message "[END] Function Get-NetBackupProcess - bpps.exe" }
 }#function Get-NetBackupProcess
 
-function Get-NetBackupStatusCode
-{
+function Get-NetBackupStatusCode {
 <#
 .SYNOPSIS
 	Return the clear text of Status Codes for troubleshooting
@@ -1287,32 +1206,30 @@ function Get-NetBackupStatusCode
 	C:\ > Get-NetBackupStatusCode -StatusCode 2
 		None of the requested files were backed up
 .NOTES
-	Kevin M. Kirkpatrick
-	https://github.com/vN3rd
+	Kevin Kirkpatrick
+	https://github.com/vScripter
 	www.vmotioned.com
-	@vN3rd
+	@vScripter
 	
 	HISTORY
 	1.0 2014/08/22	Initial Version
 	1.1	2014/09/21	Add Mandatory, Remove ParameterSetName
+	1.2 2015/01/22	Removed 'ValueFromPipeLine' param attribute; 'ValueFromPipeLineByPropertyName' already exists; using both is redundant
 #>
 	
 	[cmdletbinding()]
 	param (
 		[parameter(Mandatory = $true,
 				   HelpMessage = "Enter status code number (ex: 15) ",
-				   ValueFromPipeline = $true,
-			 	   ValueFromPipelineByPropertyName = $true,
+				   ValueFromPipelineByPropertyName = $true,
 				   Position = 0)]
-		[ValidateRange(0,255)]
+		[ValidateRange(0, 255)]
 		[int]$StatusCode
 	)
 	BEGIN { Write-Verbose -Message "[BEGIN] Function Get-NetBackupStatusCode" }
-	PROCESS
-	{
+	PROCESS {
 		Write-Verbose -Message "[PROCESS] StatusCode: $StatusCode"
-		Switch ($StatusCode)
-		{
+		Switch ($StatusCode) {
 			0 { "The requested operation was successfully completed" }
 			1 { "The requested operation was partially successful" }
 			2 { "None of the requested files were backed up" }
@@ -1573,6 +1490,157 @@ function Get-NetBackupStatusCode
 	}# PROCESS
 	END { Write-Verbose -Message "[END] Function Get-NetBackupStatusCode" }
 }# Function Get-NetBackupStatusCode
+
+function Get-NetBackupVersion {
+	
+<#
+.SYNOPSIS
+	Return the NetBackup Version from the specified computer/s
+.DESCRIPTION
+	This function reads the NetBackup version information from the version.txt file located on a local or remote system. The path is '\\$computer\c$\Program Files\Veritas\NetBackup\version.txt'.
+	I have found this to be the most reliable source for version information for clients, Media servers and Master servers; it gets updated consistently on every patch/upgrade.
+	
+	It parses the contents of said file and converts the output to a proper PS object. 
+	
+	In testing, I have found that computers running Server 2003, and older, have the 'ReleaseDate' formatted different than newer systems. I built in logic that will
+	automatically convert the 'ReleaseDate' that is returned from newer systems to a proper [System.DateTime] .NET object. I went in this direction since most environments
+	consist mainly of systems that will support the conversion.
+.PARAMETER ComputerName
+	Name of computer; FQDN preferred
+.INPUTS
+	System.String
+.OUTPUTS
+	System.Management.Automation.PSCustomObject
+.EXAMPLE
+	.\Get-NetBackupVersion -ComputerName SERVER01 -Verbose
+.EXAMPLE
+	.\Get-NetBackupVersion -ComputerName SERVER01,SERVER02,SERVER03 | Format-List
+	
+In this example:
+	SERVER01 is running Windows Server 2008 R2 SP1
+	SERVER02 is unreachable
+	SERVER03 is running Windows Server 2003 SP2
+	
+ComputerName : SERVER01
+Hardware     : Windows x64
+Version      : NetBackup 7.5.0.6
+ReleaseDate  : 6/10/2013 9:45:17 PM
+BuildNumber  : 20130610
+
+WARNING: [SERVER02][ERROR] Unreachable via Ping
+ComputerName : SERVER02
+Hardware     : [ERROR] - Unreachable via Ping
+Version      : N/A
+ReleaseDate  : N/A
+BuildNumber  : N/A
+
+WARNING: [SERVER03][ERROR] Could not properly convert the date and time in the version file. 'ReleaseDate' will not be a proper DateTime property
+ComputerName : SERVER03
+Hardware     : Windows x86
+Version      : NetBackup 7.5.0.3
+ReleaseDate  : Tue Jun  5 20:47:14 CDT 2012
+BuildNumber  : 20120605
+	
+.EXAMPLE
+	.\Get-NetBackupVersion -ComputerName (Get-Content C:\ServerList.txt) -Verbose | Export-Csv C:\NBUVersionReport.csv -NoTypeInformation
+.NOTES
+	Kevin Kirkpatrick
+	https://github.com/vScripter
+	www.vmotioned.com
+	@vScripter
+	
+	HISTORY
+	1.1.1 2015/01/22	Initial Version
+#>
+	
+	[CmdletBinding(PositionalBinding = $true)]
+	param (
+		[Parameter(Position = 0,
+				   Mandatory = $false,
+				   ValueFromPipelineByPropertyName = $true)]
+		[System.String[]]$ComputerName = 'localhost'
+	)
+	
+	BEGIN {
+		#Write-Verbose -Message 'Entering BEGIN block'
+	} # end BEGIN block
+	
+	PROCESS {
+		#Write-Verbose -Message 'Entering PROCESS block'
+		
+		foreach ($computer in $ComputerName) {
+			if (Test-Connection -ComputerName $computer -Count 1 -Quiet) {
+				$versionFile = $null
+				$objNbuVersion = @()
+				$nbuVersion = $null				
+				
+				$versionFile = "\\$computer\c$\Program Files\Veritas\NetBackup\version.txt"
+				
+				Write-Verbose -Message "[$computer] Checking for version file"
+				try {
+					Test-Path -LiteralPath $versionFile -Type leaf -ErrorAction 'Stop' | Out-Null
+				} catch {
+					Write-Warning -Message "[$computer][ERROR] - Could not find or access '$versionFile'."
+				} # end try/catch
+				
+				Write-Verbose -Message "[$computer] Reading contents of version file"
+				try {
+					$nbuVersion = Get-Content -LiteralPath $versionFile -ErrorAction 'Stop'
+				} catch {
+					Write-Warning -Message "[$computer][ERROR] Could not read '$versionFile'."
+				} # end try/catch
+				
+				Write-Verbose -Message "[$computer] Gathering version information"
+				try {
+					$convertDT = ($nbuVersion[2]).substring(12)
+					$convertDT = $convertDT -split ' '
+					[DateTime]$convertDT = "$($convertDT[1]) $($convertDT[2]), $($convertDT[4]) $($convertDT[3])"
+					
+					[bool]$convertTest = $true
+				} catch {
+					Write-Warning -Message "[$computer][ERROR] Could not properly convert the date and time in the version file. 'ReleaseDate' will not be a proper DateTime property"
+					[bool]$convertTest = $false
+				} # end try/catch
+				
+				if ($convertTest -eq $true) {					
+					$objNbuVersion = [PSCustomObject] @{
+						ComputerName = $computer
+						Hardware = ($nbuversion[0]).substring(9)
+						Version = ($nbuversion[1]).substring(8)
+						ReleaseDate = $convertDT
+						BuildNumber = ($nbuversion[3]).substring(12)
+					} # end $objNbuVersion
+				} else {					
+					$objNbuVersion = [PSCustomObject] @{
+						ComputerName = $computer
+						Hardware = ($nbuversion[0]).substring(9)
+						Version = ($nbuversion[1]).substring(8)
+						ReleaseDate = ($nbuversion[2]).substring(12)
+						BuildNumber = ($nbuversion[3]).substring(12)
+					} # end $objNbuVersion
+				} # end if/else $convertTest
+				
+				$objNbuVersion
+				
+			} else {
+				Write-Warning -Message "[$computer][ERROR] Unreachable via Ping"
+				$objNbuVersion = [PSCustomObject] @{
+					ComputerName = $computer
+					Hardware = '[ERROR] - Unreachable via Ping'
+					Version = 'N/A'
+					ReleaseDate = 'N/A'
+					BuildNumber = 'N/A'
+				} # end $objNbuVersion
+				
+				$objNbuVersion
+			} # end if/else Test-Connection
+		} # end foreach $computer
+	} # end PROCESS block
+	
+	END {
+		#Write-Verbose -Message 'Entering END block'
+	} # end END block
+} # end function Get-NetBackupVersion
 
 
 Export-ModuleMember -Function *
