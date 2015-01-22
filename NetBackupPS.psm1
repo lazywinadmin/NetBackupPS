@@ -2,30 +2,30 @@ Function Get-NetBackupPolicy {
 <#
 .SYNOPSIS
    The function Get-NetBackupPolicy list all the policies from the Master Server
-	
+
 .DESCRIPTION
    The function Get-NetBackupPolicy list all the policies from the Master Server
-	
+
 .PARAMETER AllPolicies
 	List all the Policies with all properties
-	
+
 .EXAMPLE
 	Get-NetBackupPolicy
-	
+
 	List all the policies name
-	
+
 .EXAMPLE
 	Get-NetBackupPolicy -AllPolicies
-	
+
 	List all the Policies with all properties
-	
+
 .NOTES
 	Francois-Xavier Cat
 	LazyWinAdmin.com
 	@Lazywinadm
-	
+
 	https://github.com/lazywinadmin/NetBackupPS
-	
+
 	HISTORY
 	1.0 2014/06/01	Initial Version
 	1.1 2014/09/20	Add Errors handling and Verbose
@@ -54,10 +54,10 @@ Function Get-NetBackupPolicy {
 				# List the Policies
 				Write-Verbose -Message "[PROCESS] PARAM: AllPolicies"
 				$bppllist = (bppllist -allpolicies) -as [String]
-				
+
 				# Split the Policies
 				$bppllist = $bppllist -split "CLASS\s"
-				
+
 				FOREACH ($policy in $bppllist) {
 					#http://www.symantec.com/business/support/index?page=content&id=HOWTO90333
 					New-Object -TypeName PSObject -Property @{
@@ -72,9 +72,9 @@ Function Get-NetBackupPolicy {
 						POOL = ($policy[7])[5..($policy[7].count)] -split " "
 					}
 				}
-				
+
 			} ELSE {
-				
+
 				# List the Policies
 				Write-Verbose -Message "[PROCESS] NO PARAM"
 				$bppllist = bppllist
@@ -97,22 +97,22 @@ Function Get-NetBackupClient {
 <#
 .SYNOPSIS
    The function Get-NetbackupClient list all the client known from the Master Server
-	
+
 .DESCRIPTION
    The function Get-NetbackupClient list all the client known from the Master Server
-	
+
 .EXAMPLE
 	Get-NetBackupClient
-	
+
 	List all the clients registered in NetBackup Database
-	
+
 .NOTES
 	Francois-Xavier Cat
 	LazyWinAdmin.com
 	@Lazywinadm
-	
+
 	https://github.com/lazywinadmin/NetBackupPS
-	
+
 	HISTORY
 	1.0 2014/06/01  Initial Version
 	1.1 2014/09/20  Add Errors handling and Verbose
@@ -126,16 +126,16 @@ Function Get-NetBackupClient {
 			# Get the client list for the command bpplclients
 			Write-Verbose -Message "[PROCESS] Querying Bpplclients..."
 			$bpplclients = bpplclients.exe
-			
+
 			Write-Verbose -Message "[PROCESS] Formatting and Output result..."
 			Foreach ($client in (($bpplclients)[2..($bpplclients.count)])) {
-				
+
 				# Remove the white spaces, replace by space character
 				$client = $client -replace '\s+', ' '
-				
+
 				# Split on space character
 				$client = $client -split ' '
-				
+
 				New-Object -TypeName PSobject -Property @{
 					Hardware = $client[0]
 					OS = $client[1]
@@ -173,14 +173,14 @@ function Get-NetBackupGlobalConfiguration {
 	Francois-Xavier Cat
 	LazyWinAdmin.com
 	@Lazywinadm
-	
+
 	https://github.com/lazywinadmin/NetBackupPS
-	
+
 	HISTORY
 	1.0 2014/06/01	Initial Version
 	1.1 2014/09/20  Add Errors handling and Verbose
 					Add Blocks BEGIN,PROCESS,END
-	
+
 #>
 	[CmdletBinding()]
 	PARAM (
@@ -195,7 +195,7 @@ function Get-NetBackupGlobalConfiguration {
 	PROCESS {
 		TRY {
 			Write-Verbose -Message "[PROCESS] Display global configuration attributes for NetBackup"
-			
+
 			IF ($PSBoundParameters['DisplayFormat']) {
 				Write-Verbose -Message "[PROCESS] PARAM: DisplayFormat"
 				$bpconfig = bpconfig -U
@@ -217,7 +217,7 @@ function Get-NetBackupGlobalConfiguration {
 					ImageDBCleanupWaitTime = ($bpconfig[15] -split ":\s+")[1]
 					PolicyUpdateInterval = ($bpconfig[16] -split ":\s+")[1]
 				}
-				
+
 			}
 			IF ($PSBoundParameters['LongFormat']) {
 				Write-Verbose -Message "[PROCESS] PARAM: LongFormat"
@@ -240,7 +240,7 @@ function Get-NetBackupGlobalConfiguration {
 					ImageDBCleanupWaitTime = ($bpconfig[15] -split ":\s+")[1]
 					PolicyUpdateInterval = ($bpconfig[16] -split ":\s+")[1]
 				}
-				
+
 			}
 			IF ($PSBoundParameters['ShortFormat']) {
 				Write-Verbose -Message "[PROCESS] PARAM: ShortFormat"
@@ -285,7 +285,7 @@ function Get-NetBackupTapeConfiguration {
     Display the Virtual Machine Credential(s) added to NetBackup
 .EXAMPLE
     Get-NetBackupTapeConfiguration -VirtualMachineCredential
-    
+
     Display the Virtual Machine Credential(s) added to NetBackup
 
 SubType                : 1
@@ -313,9 +313,9 @@ VirtualMachineHostName : fx-vcenter03
 	Francois-Xavier Cat
 	LazyWinAdmin.com
 	@Lazywinadm
-	
+
 	https://github.com/lazywinadmin/NetBackupPS
-	
+
 	HISTORY
 	1.0 2014/06/01 Initial Version
 	1.1 2014/09/20  Add Errors handling and Verbose
@@ -333,22 +333,22 @@ VirtualMachineHostName : fx-vcenter03
 			IF ($PSBoundParameters['VirtualMachineCredential']) {
 				Write-Verbose -Message "[PROCESS] Getting VirtualMachine Credentials"
 				$OutputInfo = (tpconfig -dvirtualmachines)
-				
+
 				# Get rid of empty spaces and replace by :
 				$OutputInfo = $OutputInfo -replace ":\s+", ":"
-				
+
 				# Add a comma at the end of each line to delimit each object (this is needed when the object $outputinfo is converted to STRING)
 				$OutputInfo = $OutputInfo -replace "\Z", ","
-				
+
 				#Convert to [string]
 				$OutputInfo = $OutputInfo -as [string]
-				
+
 				# Split each object
 				$OutputInfo = $OutputInfo -split "==============================================================================,"
-				
-				
+
+
 				$OutputInfo = ($OutputInfo[1..($OutputInfo.count - 1)])
-				
+
 				FOREACH ($obj in $OutputInfo) {
 					$obj = $obj -split ","
 					$SubTypeName = switch (($obj[2] -split ":")[1]) {
@@ -388,31 +388,31 @@ function Get-NetBackupDiskMedia {
     Lists the disk mount points for the disk pool.
 .EXAMPLE
     Get-NetBackupDiskMedia -StorageServer
-    
+
     Lists all servers that host storage. These include Symantec provided storage
 .EXAMPLE
     Get-NetBackupDiskMedia -DiskPool
-    
+
     Lists all imported disk pools in the NetBackup database.
-    
+
 .EXAMPLE
     Get-NetBackupDiskMedia -Mount
-    
+
     Lists the disk mount points for the disk pool.
-    
+
 .NOTES
 	Francois-Xavier Cat
 	LazyWinAdmin.com
 	@Lazywinadm
-	
+
 	https://github.com/lazywinadmin/NetBackupPS
-	
+
 	HISTORY
 	1.0 2014/06/01	Initial Version
 	1.1 2014/09/20  Add Errors handling and Verbose
 					Add Blocks BEGIN,PROCESS,END
 #>
-	
+
 	[CmdletBinding(DefaultParameterSetName = "StorageServer")]
 	PARAM (
 		[Parameter(ParameterSetName = "StorageServer", Mandatory = $true)]
@@ -498,34 +498,34 @@ function Get-NetBackupJob {
     Reports on one or multiple job IDs
 .EXAMPLE
     Get-NetBackupDBjob -Summary
-    
+
     Prints a summary line for all the jobs that are stored in NBU/jobs.
 .EXAMPLE
     Get-NetBackupJob -Full
-    
+
     Show all the job in the last three days (default is 3 days)
 .EXAMPLE
     Get-NetBackupJob -Full -TimeStamp ((Get-Date).AddMinutes(-2)
-    
+
     Show all the job from the last two minutes
-    
+
 .EXAMPLE
     Get-NetBackupJob -JobId 7149678
-    
+
     Reports information for the job 7149678
-    
+
 .EXAMPLE
     Get-NetBackupJob -JobId 7149678, 7149679
-    
+
     Reports information for the job 7149678 and 7149679
-    
+
 .NOTES
 	Francois-Xavier Cat
 	LazyWinAdmin.com
 	@Lazywinadm
-	
+
 	https://github.com/lazywinadmin/NetBackupPS
-	
+
 	HISTORY
 	1.0 2014/06/01	Initial Version
 	1.1 2014/09/20  Add Errors handling and Verbose
@@ -565,7 +565,7 @@ function Get-NetBackupJob {
 			}
 			IF ($PSBoundParameters['Full']) {
 				Write-Verbose -Message "[PROCESS] PARAM: Full"
-				
+
 				IF ($PSBoundParameters['TimeStamp']) {
 					Write-Verbose -Message "[PROCESS] PARAM: TimeStamp"
 					$DateTime = $TimeStamp -f 'MM/dd/yyyy hh:mm:ss'
@@ -607,9 +607,9 @@ function Get-NetBackupVolume {
     Specify the MediaID(s) to display
 .EXAMPLE
     Get-NetBackupVolume -PoolName Scratch
-    
+
     This will return all the volumes in the Pool named Scratch
-    
+
 VaultName        : ---
 VaultSessionID   : ---
 MacMountsAllowed : ---
@@ -672,10 +672,10 @@ VaultReturnDate  : ---
 VolumeGroup      : ---
 MediaType        : 1/2" cartridge tape 3 (24)
 MediaID          : WT0191
-    
+
 .EXAMPLE
     Get-NetBackupVolume -MediaID CC0002,DD0005
-    
+
     This will display information for the tapes CC0002,DD0005
 
 VaultName        : fx1
@@ -730,14 +730,14 @@ MediaID          : DD0005
 
     This will return the volumes in the PoolName 'Scratch' for the RobotNumber 23 and 19.
     It will additionally show the verbose messages/comments.
-    
+
 .NOTES
 	Francois-Xavier Cat
 	LazyWinAdmin.com
 	@Lazywinadm
-	
+
 	https://github.com/lazywinadmin/NetBackupPS
-	
+
 	HISTORY
 	1.0 2014/06/01	Initial Version
 	1.1 2014/09/20  Add Errors handling and Verbose
@@ -762,16 +762,16 @@ MediaID          : DD0005
 					$OutputInfo = (vmquery -rn $RobotNo)
 					# Get rid of empty spaces and replace by :
 					$OutputInfo = $OutputInfo -replace ":\s+", ":"
-					
+
 					# Add a comma at the end of each line to delimit each object (this is needed when the object $outputinfo is converted to STRING)
 					$OutputInfo = $OutputInfo -replace "\Z", ","
-					
+
 					#Convert to [string]
 					$OutputInfo = $OutputInfo -as [string]
-					
+
 					# Split each object
 					$OutputInfo = $OutputInfo -split "================================================================================,"
-					
+
 					foreach ($obj in $OutputInfo) {
 						$obj = $obj -split ","
 						New-Object -TypeName PSObject -Property @{
@@ -802,23 +802,23 @@ MediaID          : DD0005
 					}#foreach ($obj in $OutputInfo)
 				}# FOREACH ($RobotNo in $RobotNumber)
 			} #IF ($RobotNumber -and $PoolName)
-			
+
 			IF ($PSBoundParameters['RobotNumber'] -and -not ($PSboundParameters['PoolName'])) {
 				FOREACH ($RobotNo in $RobotNumber) {
 					Write-Verbose -Message "[PROCESS] vmquery on RobotNumber $RobotNo"
 					$OutputInfo = (vmquery -rn $RobotNo)
 					# Get rid of empty spaces and replace by :
 					$OutputInfo = $OutputInfo -replace ":\s+", ":"
-					
+
 					# Add a comma at the end of each line to delimit each object (this is needed when the object $outputinfo is converted to STRING)
 					$OutputInfo = $OutputInfo -replace "\Z", ","
-					
+
 					#Convert to [string]
 					$OutputInfo = $OutputInfo -as [string]
-					
+
 					# Split each object
 					$OutputInfo = $OutputInfo -split "================================================================================,"
-					
+
 					foreach ($obj in $OutputInfo) {
 						$obj = $obj -split ","
 						New-Object -TypeName PSObject -Property @{
@@ -849,23 +849,23 @@ MediaID          : DD0005
 					}#foreach
 				}#FOREACH ($RobotNo in $RobotNumber)
 			}# IF ($RobotNumber -and -not($PoolName))
-			
+
 			IF ($PSboundParameters['PoolName'] -and -not ($PSBoundParameters['RobotNumber'])) {
 				Write-Verbose -Message "PROCESS - vmquery on PoolName: $poolname"
 				$OutputInfo = (vmquery -pn $PoolName)
-				
+
 				# Get rid of empty spaces and replace by :
 				$OutputInfo = $OutputInfo -replace ":\s+", ":"
-				
+
 				# Add a comma at the end of each line to delimit each object (this is needed when the object $outputinfo is converted to STRING)
 				$OutputInfo = $OutputInfo -replace "\Z", ","
-				
+
 				#Convert to [string]
 				$OutputInfo = $OutputInfo -as [string]
-				
+
 				# Split each object
 				$OutputInfo = $OutputInfo -split "================================================================================,"
-				
+
 				foreach ($obj in $OutputInfo) {
 					$obj = $obj -split ","
 					New-Object -TypeName PSObject -Property @{
@@ -892,7 +892,7 @@ MediaID          : DD0005
 					}#new-Object
 				}#foreach
 			}#IF $Poolname
-			
+
 			IF ($PSboundParameters['MediaID']) {
 				FOREACH ($Media in $MediaID) {
 					TRY {
@@ -901,19 +901,19 @@ MediaID          : DD0005
 						$OutputInfo = vmquery -m $Media 2>"$env:temp\vmquery_media.err"
 						# Remove first and last line
 						$OutputInfo = $OutputInfo[1..($OutputInfo.count - 2)]
-						
+
 						# Get rid of empty spaces and replace by :
 						$OutputInfo = $OutputInfo -replace ":\s+", ":"
-						
+
 						# Add a comma at the end of each line to delimit each object (this is needed when the object $outputinfo is converted to STRING)
 						$OutputInfo = $OutputInfo -replace "\Z", ","
-						
+
 						# Convert to String
 						$OutputInfo = $OutputInfo -as [String]
-						
+
 						# Split on comma
 						$OutputInfo = $OutputInfo -split ","
-						
+
 						New-Object -TypeName PSObject -Property @{
 							MediaID = ($OutputInfo[0] -split ":")[1]
 							MediaType = ($OutputInfo[1] -split ":")[1]
@@ -1038,14 +1038,14 @@ OTHER_PROCESSES
 
 .EXAMPLE
     Get-NetBackupProcess -ProcessGroup MM_ALL -ComputerName Server01, Server02
-    
+
 .NOTES
 	Francois-Xavier Cat
 	LazyWinAdmin.com
 	@Lazywinadm
-	
+
 	https://github.com/lazywinadmin/NetBackupPS
-	
+
 	HISTORY
 	1.0 2014/06/01	Initial Version
 	1.1 2014/09/20  Add Errors handling and Verbose
@@ -1119,7 +1119,7 @@ OTHER_PROCESSES
 					}#Foreach
 				}#FOREACH ($Computer in $ComputerName)
 			}#IF ($ProcessGroup -and $ComputerName)
-			
+
 			IF ($PSBoundParameters['ProcessGroup'] -and -not ($PSBoundParameters['ComputerName'])) {
 				Write-Verbose -Message "[PROCESS] PARAM: ProcessGroup"
 				$bpps = bpps -i $ProcessGroup
@@ -1138,7 +1138,7 @@ OTHER_PROCESSES
 					}#New-Object
 				}#Foreach
 			}#IF ($ProcessGroup -and -not$ComputerName)
-			
+
 			IF (-not ($PSBoundParameters['ProcessGroup']) -and $PSBoundParameters['ComputerName']) {
 				Write-Verbose -Message "[PROCESS] PARAM: ComputerName"
 				FOREACH ($Computer in $ComputerName) {
@@ -1160,13 +1160,13 @@ OTHER_PROCESSES
 					}#Foreach
 				}#FOREACH ($Computer in $ComputerName)
 			}#IF (-not$ProcessGroup -and $ComputerName)
-			
+
 			ELSE {
 				Write-Verbose -Message "[PROCESS] No PARAM"
 				$bpps = bpps
 				$bpps_server = ($bpps[0] -split "\s")[1]
 				$bpps = $bpps[2..$bpps.count]
-				
+
 				foreach ($obj in $bpps) {
 					$obj = $obj -split "\s{2,}"
 					New-Object -TypeName PSObject -Property @{
@@ -1177,7 +1177,7 @@ OTHER_PROCESSES
 						Time = $obj[3]
 						MemMB = $obj[4] -replace "M", ""
 						Start = $obj[5]
-						
+
 					}#New-Object
 				}#Foreach
 			} #ELSE
@@ -1196,13 +1196,13 @@ function Get-NetBackupStatusCode {
 	Return the clear text of Status Codes for troubleshooting
 .DESCRIPTION
 	Return the clear text of Status Codes for troubleshooting.
-	
+
 	The list of status codes is statically defined in the module
 .PARAMETER StatusCode
 	Status code number you wish to lookup
 .EXAMPLE
 	Get-NetBackupStatusCode -StatusCode 2
-	
+
 	C:\ > Get-NetBackupStatusCode -StatusCode 2
 		None of the requested files were backed up
 .NOTES
@@ -1210,13 +1210,13 @@ function Get-NetBackupStatusCode {
 	https://github.com/vScripter
 	www.vmotioned.com
 	@vScripter
-	
+
 	HISTORY
 	1.0 2014/08/22	Initial Version
 	1.1	2014/09/21	Add Mandatory, Remove ParameterSetName
 	1.2 2015/01/22	Removed 'ValueFromPipeLine' param attribute; 'ValueFromPipeLineByPropertyName' already exists; using both is redundant
 #>
-	
+
 	[cmdletbinding()]
 	param (
 		[parameter(Mandatory = $true,
@@ -1492,16 +1492,16 @@ function Get-NetBackupStatusCode {
 }# Function Get-NetBackupStatusCode
 
 function Get-NetBackupVersion {
-	
+
 <#
 .SYNOPSIS
 	Return the NetBackup Version from the specified computer/s
 .DESCRIPTION
 	This function reads the NetBackup version information from the version.txt file located on a local or remote system. The path is '\\$computer\c$\Program Files\Veritas\NetBackup\version.txt'.
 	I have found this to be the most reliable source for version information for clients, Media servers and Master servers; it gets updated consistently on every patch/upgrade.
-	
-	It parses the contents of said file and converts the output to a proper PS object. 
-	
+
+	It parses the contents of said file and converts the output to a proper PS object.
+
 	In testing, I have found that computers running Server 2003, and older, have the 'ReleaseDate' formatted different than newer systems. I built in logic that will
 	automatically convert the 'ReleaseDate' that is returned from newer systems to a proper [System.DateTime] .NET object. I went in this direction since most environments
 	consist mainly of systems that will support the conversion.
@@ -1515,12 +1515,12 @@ function Get-NetBackupVersion {
 	.\Get-NetBackupVersion -ComputerName SERVER01 -Verbose
 .EXAMPLE
 	.\Get-NetBackupVersion -ComputerName SERVER01,SERVER02,SERVER03 | Format-List
-	
+
 In this example:
 	SERVER01 is running Windows Server 2008 R2 SP1
 	SERVER02 is unreachable
 	SERVER03 is running Windows Server 2003 SP2
-	
+
 ComputerName : SERVER01
 Hardware     : Windows x64
 Version      : NetBackup 7.5.0.6
@@ -1540,7 +1540,7 @@ Hardware     : Windows x86
 Version      : NetBackup 7.5.0.3
 ReleaseDate  : Tue Jun  5 20:47:14 CDT 2012
 BuildNumber  : 20120605
-	
+
 .EXAMPLE
 	.\Get-NetBackupVersion -ComputerName (Get-Content C:\ServerList.txt) -Verbose | Export-Csv C:\NBUVersionReport.csv -NoTypeInformation
 .NOTES
@@ -1548,11 +1548,11 @@ BuildNumber  : 20120605
 	https://github.com/vScripter
 	www.vmotioned.com
 	@vScripter
-	
+
 	HISTORY
-	1.1.1 2015/01/22	Initial Version
+	1.2 2015/01/22	Initial Version
 #>
-	
+
 	[CmdletBinding(PositionalBinding = $true)]
 	param (
 		[Parameter(Position = 0,
@@ -1560,49 +1560,49 @@ BuildNumber  : 20120605
 				   ValueFromPipelineByPropertyName = $true)]
 		[System.String[]]$ComputerName = 'localhost'
 	)
-	
+
 	BEGIN {
 		#Write-Verbose -Message 'Entering BEGIN block'
 	} # end BEGIN block
-	
+
 	PROCESS {
 		#Write-Verbose -Message 'Entering PROCESS block'
-		
+
 		foreach ($computer in $ComputerName) {
 			if (Test-Connection -ComputerName $computer -Count 1 -Quiet) {
 				$versionFile = $null
 				$objNbuVersion = @()
-				$nbuVersion = $null				
-				
+				$nbuVersion = $null
+
 				$versionFile = "\\$computer\c$\Program Files\Veritas\NetBackup\version.txt"
-				
+
 				Write-Verbose -Message "[$computer] Checking for version file"
 				try {
 					Test-Path -LiteralPath $versionFile -Type leaf -ErrorAction 'Stop' | Out-Null
 				} catch {
 					Write-Warning -Message "[$computer][ERROR] - Could not find or access '$versionFile'."
 				} # end try/catch
-				
+
 				Write-Verbose -Message "[$computer] Reading contents of version file"
 				try {
 					$nbuVersion = Get-Content -LiteralPath $versionFile -ErrorAction 'Stop'
 				} catch {
 					Write-Warning -Message "[$computer][ERROR] Could not read '$versionFile'."
 				} # end try/catch
-				
+
 				Write-Verbose -Message "[$computer] Gathering version information"
 				try {
 					$convertDT = ($nbuVersion[2]).substring(12)
 					$convertDT = $convertDT -split ' '
 					[DateTime]$convertDT = "$($convertDT[1]) $($convertDT[2]), $($convertDT[4]) $($convertDT[3])"
-					
+
 					[bool]$convertTest = $true
 				} catch {
 					Write-Warning -Message "[$computer][ERROR] Could not properly convert the date and time in the version file. 'ReleaseDate' will not be a proper DateTime property"
 					[bool]$convertTest = $false
 				} # end try/catch
-				
-				if ($convertTest -eq $true) {					
+
+				if ($convertTest -eq $true) {
 					$objNbuVersion = [PSCustomObject] @{
 						ComputerName = $computer
 						Hardware = ($nbuversion[0]).substring(9)
@@ -1610,7 +1610,7 @@ BuildNumber  : 20120605
 						ReleaseDate = $convertDT
 						BuildNumber = ($nbuversion[3]).substring(12)
 					} # end $objNbuVersion
-				} else {					
+				} else {
 					$objNbuVersion = [PSCustomObject] @{
 						ComputerName = $computer
 						Hardware = ($nbuversion[0]).substring(9)
@@ -1619,9 +1619,9 @@ BuildNumber  : 20120605
 						BuildNumber = ($nbuversion[3]).substring(12)
 					} # end $objNbuVersion
 				} # end if/else $convertTest
-				
+
 				$objNbuVersion
-				
+
 			} else {
 				Write-Warning -Message "[$computer][ERROR] Unreachable via Ping"
 				$objNbuVersion = [PSCustomObject] @{
@@ -1631,12 +1631,12 @@ BuildNumber  : 20120605
 					ReleaseDate = 'N/A'
 					BuildNumber = 'N/A'
 				} # end $objNbuVersion
-				
+
 				$objNbuVersion
 			} # end if/else Test-Connection
 		} # end foreach $computer
 	} # end PROCESS block
-	
+
 	END {
 		#Write-Verbose -Message 'Entering END block'
 	} # end END block
