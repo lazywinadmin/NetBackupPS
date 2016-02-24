@@ -27,9 +27,10 @@ Function Get-NetBackupPolicy {
 	https://github.com/lazywinadmin/NetBackupPS
 
 	HISTORY
-	1.0 2014/06/01	Initial Version
-	1.1 2014/09/20	Add Errors handling and Verbose
-					Add Blocks BEGIN,PROCESS,END
+	1.0 2014/06/01	 Initial Version
+	1.1 2014/09/20	 Add Errors handling and Verbose
+					 Add Blocks BEGIN,PROCESS,END
+    1.1.1 2016/02/24 Reformatted PSObject Constructor - AspenForester
 #>
 	[CmdletBinding(DefaultParameterSetName = "AllPolicies")]
 	PARAM (
@@ -64,12 +65,12 @@ Function Get-NetBackupPolicy {
 						PolicyName = ($policy[0] -split " ")[0]
 						CLASS = ($policy[0] -split " ")
 						NAMES = ($policy[1] -split " ")
-						INFO = ($policy[2])[5..($policy[2].count)] -split " "
-						KEY = ($policy[3])[4..($policy[3].count)] -split " "
-						BCMD = ($policy[4])[5..($policy[4].count)] -split " "
-						RCMD = ($policy[5])[5..($policy[5].count)] -split " "
-						RES = ($policy[6])
-						POOL = ($policy[7])[5..($policy[7].count)] -split " "
+						INFO  = ($policy[2])[5..($policy[2].count)] -split " "
+						KEY   = ($policy[3])[4..($policy[3].count)] -split " "
+						BCMD  = ($policy[4])[5..($policy[4].count)] -split " "
+						RCMD  = ($policy[5])[5..($policy[5].count)] -split " "
+						RES   = ($policy[6])
+						POOL  = ($policy[7])[5..($policy[7].count)] -split " "
 					}
 				}
 
@@ -114,9 +115,10 @@ Function Get-NetBackupClient {
 	https://github.com/lazywinadmin/NetBackupPS
 
 	HISTORY
-	1.0 2014/06/01  Initial Version
-	1.1 2014/09/20  Add Errors handling and Verbose
-					Add Blocks BEGIN,PROCESS,END
+	1.0 2014/06/01   Initial Version
+	1.1 2014/09/20   Add Errors handling and Verbose
+					 Add Blocks BEGIN,PROCESS,END
+    1.1.1 2016/02/24 Reformatted PSObject Constructor - AspenForester
 #>
 	[CmdletBinding()]
 	PARAM ()
@@ -138,8 +140,8 @@ Function Get-NetBackupClient {
 
 				New-Object -TypeName PSobject -Property @{
 					Hardware = $client[0]
-					OS = $client[1]
-					Client = $client[2]
+					OS       = $client[1]
+					Client   = $client[2]
 				}
 			}#Foreach
 		}#TRY
@@ -180,6 +182,7 @@ function Get-NetBackupGlobalConfiguration {
 	1.0 2014/06/01	Initial Version
 	1.1 2014/09/20  Add Errors handling and Verbose
 					Add Blocks BEGIN,PROCESS,END
+    1.1.1 2016/02/24 Reformatted PSObject Constructor - AspenForester
 
 #>
 	[CmdletBinding()]
@@ -200,22 +203,22 @@ function Get-NetBackupGlobalConfiguration {
 				Write-Verbose -Message "[PROCESS] PARAM: DisplayFormat"
 				$bpconfig = bpconfig -U
 				New-Object -TypeName PSObject -Property @{
-					AdministratorEmailAddress = ($bpconfig[1] -split ":\s+")[1]
-					JobRetryDelay = ($bpconfig[2] -split ":\s+")[1]
+					AdministratorEmailAddress        = ($bpconfig[1] -split ":\s+")[1]
+					JobRetryDelay                    = ($bpconfig[2] -split ":\s+")[1]
 					MaximumSimultaneousJobsPerClient = ($bpconfig[3] -split ":\s+")[1]
-					BackupTries = ($bpconfig[4] -split ":\s+")[1]
-					KeepErrorsDebugLogs = ($bpconfig[5] -split ":\s+")[1]
-					MaxDrivesThisMaster = ($bpconfig[6] -split ":\s+")[1]
-					KeepTrueImageRecoveryInfo = ($bpconfig[7] -split ":\s+")[1]
-					CompressImageDBFiles = ($bpconfig[8] -split ":\s+")[1]
-					MediaMountTimeout = ($bpconfig[9] -split ":\s+")[1]
-					SharedMediaMountTimeout = ($bpconfig[10] -split ":\s+")[1]
-					DisplayReports = ($bpconfig[11] -split ":\s+")[1]
-					PreprocessInterval = ($bpconfig[12] -split ":\s+")[1]
-					MaximumBackupCopies = ($bpconfig[13] -split ":\s+")[1]
-					ImageDBCleanupInterval = ($bpconfig[14] -split ":\s+")[1]
-					ImageDBCleanupWaitTime = ($bpconfig[15] -split ":\s+")[1]
-					PolicyUpdateInterval = ($bpconfig[16] -split ":\s+")[1]
+					BackupTries                      = ($bpconfig[4] -split ":\s+")[1]
+					KeepErrorsDebugLogs              = ($bpconfig[5] -split ":\s+")[1]
+					MaxDrivesThisMaster              = ($bpconfig[6] -split ":\s+")[1]
+					KeepTrueImageRecoveryInfo        = ($bpconfig[7] -split ":\s+")[1]
+					CompressImageDBFiles             = ($bpconfig[8] -split ":\s+")[1]
+					MediaMountTimeout                = ($bpconfig[9] -split ":\s+")[1]
+					SharedMediaMountTimeout          = ($bpconfig[10] -split ":\s+")[1]
+					DisplayReports                   = ($bpconfig[11] -split ":\s+")[1]
+					PreprocessInterval               = ($bpconfig[12] -split ":\s+")[1]
+					MaximumBackupCopies              = ($bpconfig[13] -split ":\s+")[1]
+					ImageDBCleanupInterval           = ($bpconfig[14] -split ":\s+")[1]
+					ImageDBCleanupWaitTime           = ($bpconfig[15] -split ":\s+")[1]
+					PolicyUpdateInterval             = ($bpconfig[16] -split ":\s+")[1]
 				}
 
 			}
@@ -223,22 +226,22 @@ function Get-NetBackupGlobalConfiguration {
 				Write-Verbose -Message "[PROCESS] PARAM: LongFormat"
 				$bpconfig = bpconfig -L
 				New-Object -TypeName PSObject -Property @{
-					AdministratorEmailAddress = ($bpconfig[1] -split ":\s+")[1]
-					JobRetryDelay = ($bpconfig[2] -split ":\s+")[1]
+					AdministratorEmailAddress        = ($bpconfig[1] -split ":\s+")[1]
+					JobRetryDelay                    = ($bpconfig[2] -split ":\s+")[1]
 					MaximumSimultaneousJobsPerClient = ($bpconfig[3] -split ":\s+")[1]
-					BackupTries = ($bpconfig[4] -split ":\s+")[1]
-					KeepErrorsDebugLogs = ($bpconfig[5] -split ":\s+")[1]
-					MaxDrivesThisMaster = ($bpconfig[6] -split ":\s+")[1]
-					CompressImageDBFiles = ($bpconfig[7] -split ":\s+")[1]
-					MediaMountTimeout = ($bpconfig[8] -split ":\s+")[1]
-					SharedMediaMountTimeout = ($bpconfig[9] -split ":\s+")[1]
-					DisplayReports = ($bpconfig[10] -split ":\s+")[1]
-					KeepTIRinfo = ($bpconfig[11] -split ":\s+")[1]
-					PreprocessInterval = ($bpconfig[12] -split ":\s+")[1]
-					MaximumBackupCopies = ($bpconfig[13] -split ":\s+")[1]
-					ImageDBCleanupInterval = ($bpconfig[14] -split ":\s+")[1]
-					ImageDBCleanupWaitTime = ($bpconfig[15] -split ":\s+")[1]
-					PolicyUpdateInterval = ($bpconfig[16] -split ":\s+")[1]
+					BackupTries                      = ($bpconfig[4] -split ":\s+")[1]
+					KeepErrorsDebugLogs              = ($bpconfig[5] -split ":\s+")[1]
+					MaxDrivesThisMaster              = ($bpconfig[6] -split ":\s+")[1]
+					CompressImageDBFiles             = ($bpconfig[7] -split ":\s+")[1]
+					MediaMountTimeout                = ($bpconfig[8] -split ":\s+")[1]
+					SharedMediaMountTimeout          = ($bpconfig[9] -split ":\s+")[1]
+					DisplayReports                   = ($bpconfig[10] -split ":\s+")[1]
+					KeepTIRinfo                      = ($bpconfig[11] -split ":\s+")[1]
+					PreprocessInterval               = ($bpconfig[12] -split ":\s+")[1]
+					MaximumBackupCopies              = ($bpconfig[13] -split ":\s+")[1]
+					ImageDBCleanupInterval           = ($bpconfig[14] -split ":\s+")[1]
+					ImageDBCleanupWaitTime           = ($bpconfig[15] -split ":\s+")[1]
+					PolicyUpdateInterval             = ($bpconfig[16] -split ":\s+")[1]
 				}
 
 			}
@@ -247,23 +250,23 @@ function Get-NetBackupGlobalConfiguration {
 				$bpconfig = bpconfig -l
 				$bpconfig = $bpconfig -split " "
 				New-Object -TypeName PSObject -Property @{
-					AdministratorEmailAddress = $bpconfig[0]
-					JobRetryDelay = $bpconfig[1]
-					BackupTimePeriod = $bpconfig[2]
+					AdministratorEmailAddress        = $bpconfig[0]
+					JobRetryDelay                    = $bpconfig[1]
+					BackupTimePeriod                 = $bpconfig[2]
 					MaximumSimultaneousJobsPerClient = $bpconfig[3]
-					BackupTries = $bpconfig[4]
-					KeepErrorsDebugLogs = $bpconfig[5]
-					MaxDrivesThisMaster = $bpconfig[6]
-					CompressImageDBFiles = $bpconfig[7] 	# 0 denotes no compression
-					MediaMountTimeout = $bpconfig[8] 		# 0 denotes unlimited
-					SharedMediaMountTimeout = $bpconfig[9] 	# Multihosted-media-mount timeout is 0 seconds; 0 denotes unlimited.
-					PostProcessImagesFlag = $bpconfig[10]	# 1 is immediate
-					DisplayReports = $bpconfig[11] 			#Display reports from x hours ago
-					KeepTIRinfo = $bpconfig[12] 			#Keep TIR information for one x day.
-					PreprocessInterval = $bpconfig[13]
-					ImageDBCleanupInterval = $bpconfig[14]
-					ImageDBCleanupWaitTime = $bpconfig[15]
-					PolicyUpdateInterval = $bpconfig[16]
+					BackupTries                      = $bpconfig[4]
+					KeepErrorsDebugLogs              = $bpconfig[5]
+					MaxDrivesThisMaster              = $bpconfig[6]
+					CompressImageDBFiles             = $bpconfig[7] 	# 0 denotes no compression
+					MediaMountTimeout                = $bpconfig[8] 	# 0 denotes unlimited
+					SharedMediaMountTimeout          = $bpconfig[9] 	# Multihosted-media-mount timeout is 0 seconds; 0 denotes unlimited.
+					PostProcessImagesFlag            = $bpconfig[10]	# 1 is immediate
+					DisplayReports                   = $bpconfig[11] 	# Display reports from x hours ago
+					KeepTIRinfo                      = $bpconfig[12] 	# Keep TIR information for one x day.
+					PreprocessInterval               = $bpconfig[13]
+					ImageDBCleanupInterval           = $bpconfig[14]
+					ImageDBCleanupWaitTime           = $bpconfig[15]
+					PolicyUpdateInterval             = $bpconfig[16]
 				}
 			}
 		}#TRY
@@ -320,6 +323,7 @@ VirtualMachineHostName : fx-vcenter03
 	1.0 2014/06/01 Initial Version
 	1.1 2014/09/20  Add Errors handling and Verbose
 					Add Blocks BEGIN,PROCESS,END
+    1.1.1 2016/02/24 Reformatted PSObject Constructor - AspenForester
 
 #>
 	[CmdletBinding()]
@@ -359,10 +363,10 @@ VirtualMachineHostName : fx-vcenter03
 					New-Object -TypeName PSObject -Property @{
 						VirtualMachineHostName = ($obj[0] -split ":")[1]
 						VirtualMachineHostType = ($obj[1] -split ":")[1]
-						SubType = ($obj[2] -split ":")[1][1]
-						SubTypeName = $SubTypeName
-						UserID = ($obj[3] -split ":")[1]
-						RequiredPort = ($obj[4] -split ":")[1]
+						SubType                = ($obj[2] -split ":")[1][1]
+						SubTypeName            = $SubTypeName
+						UserID                 = ($obj[3] -split ":")[1]
+						RequiredPort           = ($obj[4] -split ":")[1]
 					} #NEW-OBJET
 				} #FOREACH
 			}#IF
@@ -408,9 +412,10 @@ function Get-NetBackupDiskMedia {
 	https://github.com/lazywinadmin/NetBackupPS
 
 	HISTORY
-	1.0 2014/06/01	Initial Version
-	1.1 2014/09/20  Add Errors handling and Verbose
-					Add Blocks BEGIN,PROCESS,END
+	1.0 2014/06/01	 Initial Version
+	1.1 2014/09/20   Add Errors handling and Verbose
+					 Add Blocks BEGIN,PROCESS,END
+    1.1.1 2016/02/24 Reformatted PSObject Constructor - AspenForester
 #>
 
 	[CmdletBinding(DefaultParameterSetName = "StorageServer")]
@@ -444,15 +449,15 @@ function Get-NetBackupDiskMedia {
 				Foreach ($Obj in $nbdevquery) {
 					$obj = $obj -split "\s"
 					New-Object -TypeName PSObject -Property @{
-						Version = $Obj[0]
-						DiskPool = $Obj[1]
-						Flag1 = $Obj[2]
-						Flag2 = $Obj[3]
-						Flag3 = $Obj[4]
-						Flag4 = $Obj[5]
-						Flag5 = $Obj[6]
-						Flag6 = $Obj[7]
-						Flag7 = $Obj[8]
+						Version       = $Obj[0]
+						DiskPool      = $Obj[1]
+						Flag1         = $Obj[2]
+						Flag2         = $Obj[3]
+						Flag3         = $Obj[4]
+						Flag4         = $Obj[5]
+						Flag5         = $Obj[6]
+						Flag6         = $Obj[7]
+						Flag7         = $Obj[8]
 						StorageServer = $Obj[9]
 					}
 				}
@@ -480,6 +485,7 @@ function Get-NetBackupDiskMedia {
 	}#PROCESS
 	END { Write-Verbose -Message "[END] Function Get-NetBackupDiskMedia - nbdevquery.exe" }
 }
+
 function Get-NetBackupJob {
 <#
 .SYNOPSIS
@@ -527,9 +533,10 @@ function Get-NetBackupJob {
 	https://github.com/lazywinadmin/NetBackupPS
 
 	HISTORY
-	1.0 2014/06/01	Initial Version
-	1.1 2014/09/20  Add Errors handling and Verbose
-					Add Blocks BEGIN,PROCESS,END
+	1.0 2014/06/01	 Initial Version
+	1.1 2014/09/20   Add Errors handling and Verbose
+					 Add Blocks BEGIN,PROCESS,END
+    1.1.1 2016/02/24 Reformatted PSObject Constructor - AspenForester
 #>
 	[CmdletBinding()]
 	PARAM (
@@ -551,16 +558,16 @@ function Get-NetBackupJob {
 				$obj = $bpdpjobs[1] -split '\s+'
 				New-Object -TypeName PSObject -Property @{
 					MasterServer = $obj[0]
-					Queued = $obj[1]
-					Requeued = $obj[2]
-					Active = $obj[3]
-					Success = $obj[4]
-					PartSucc = $obj[5]
-					Failed = $obj[6]
-					Incomplete = $obj[7]
-					Suspended = $obj[8]
+					Queued       = $obj[1]
+					Requeued     = $obj[2]
+					Active       = $obj[3]
+					Success      = $obj[4]
+					PartSucc     = $obj[5]
+					Failed       = $obj[6]
+					Incomplete   = $obj[7]
+					Suspended    = $obj[8]
 					WaitingRetry = $obj[9]
-					Total = $obj[10]
+					Total        = $obj[10]
 				}
 			}
 			IF ($PSBoundParameters['Full']) {
@@ -739,9 +746,10 @@ MediaID          : DD0005
 	https://github.com/lazywinadmin/NetBackupPS
 
 	HISTORY
-	1.0 2014/06/01	Initial Version
-	1.1 2014/09/20  Add Errors handling and Verbose
-					Add Blocks BEGIN,PROCESS,END
+	1.0 2014/06/01	 Initial Version
+	1.1 2014/09/20   Add Errors handling and Verbose
+					 Add Blocks BEGIN,PROCESS,END
+    1.1.1 2016/02/24 Reformatted PSObject Constructor - AspenForester
 #>
 	[CmdletBinding(DefaultParametersetName = "MediaID")]
 	PARAM (
@@ -775,29 +783,29 @@ MediaID          : DD0005
 					foreach ($obj in $OutputInfo) {
 						$obj = $obj -split ","
 						New-Object -TypeName PSObject -Property @{
-							MediaID = ($obj[0] -split ":")[1]
-							MediaType = ($obj[1] -split ":")[1]
-							Barcode = ($obj[2] -split ":")[1]
+							MediaID          = ($obj[0] -split ":")[1]
+							MediaType        = ($obj[1] -split ":")[1]
+							Barcode          = ($obj[2] -split ":")[1]
 							MediaDescription = ($obj[3] -split ":")[1]
-							VolumePool = ($obj[4] -split ":")[1]
-							RobotType = ($obj[5] -split ":")[1]
-							RobotNumber = ($obj[6] -split ":")[1]
-							RobotSlot = ($obj[7] -split ":")[1]
+							VolumePool       = ($obj[4] -split ":")[1]
+							RobotType        = ($obj[5] -split ":")[1]
+							RobotNumber      = ($obj[6] -split ":")[1]
+							RobotSlot        = ($obj[7] -split ":")[1]
 							RobotControlHost = ($obj[8] -split ":")[1]
-							VolumeGroup = ($obj[9] -split ":")[1]
-							VaultName = ($obj[10] -split ":")[1]
-							VaultSentDate = ($obj[11] -split ":")[1]
-							VaultReturnDate = ($obj[12] -split ":")[1]
-							VaultSlot = ($obj[13] -split ":")[1]
-							VaultSessionID = ($obj[14] -split ":")[1]
+							VolumeGroup      = ($obj[9] -split ":")[1]
+							VaultName        = ($obj[10] -split ":")[1]
+							VaultSentDate    = ($obj[11] -split ":")[1]
+							VaultReturnDate  = ($obj[12] -split ":")[1]
+							VaultSlot        = ($obj[13] -split ":")[1]
+							VaultSessionID   = ($obj[14] -split ":")[1]
 							VaultContainerID = ($obj[15] -split ":")[1]
-							CreatedDate = ($obj[16] -split ":")[1]
-							AssignedDate = ($obj[17] -split ":")[1]
-							FirstMountDate = ($obj[18] -split ":")[1]
-							ExpirationDate = ($obj[19] -split ":")[1]
-							NumberOfMounts = ($obj[20] -split ":")[1]
+							CreatedDate      = ($obj[16] -split ":")[1]
+							AssignedDate     = ($obj[17] -split ":")[1]
+							FirstMountDate   = ($obj[18] -split ":")[1]
+							ExpirationDate   = ($obj[19] -split ":")[1]
+							NumberOfMounts   = ($obj[20] -split ":")[1]
 							MacMountsAllowed = ($obj[21] -split ":")[1]
-							Status = ($obj[22] -split ":")[1]
+							Status           = ($obj[22] -split ":")[1]
 						} | Where-Object { $_.VolumePool -like "*$PoolName*" }
 					}#foreach ($obj in $OutputInfo)
 				}# FOREACH ($RobotNo in $RobotNumber)
@@ -822,29 +830,29 @@ MediaID          : DD0005
 					foreach ($obj in $OutputInfo) {
 						$obj = $obj -split ","
 						New-Object -TypeName PSObject -Property @{
-							MediaID = ($obj[0] -split ":")[1]
-							MediaType = ($obj[1] -split ":")[1]
-							Barcode = ($obj[2] -split ":")[1]
+							MediaID          = ($obj[0] -split ":")[1]
+							MediaType        = ($obj[1] -split ":")[1]
+							Barcode          = ($obj[2] -split ":")[1]
 							MediaDescription = ($obj[3] -split ":")[1]
-							VolumePool = ($obj[4] -split ":")[1]
-							RobotType = ($obj[5] -split ":")[1]
-							RobotNumber = ($obj[6] -split ":")[1]
-							RobotSlot = ($obj[7] -split ":")[1]
+							VolumePool       = ($obj[4] -split ":")[1]
+							RobotType        = ($obj[5] -split ":")[1]
+							RobotNumber      = ($obj[6] -split ":")[1]
+							RobotSlot        = ($obj[7] -split ":")[1]
 							RobotControlHost = ($obj[8] -split ":")[1]
-							VolumeGroup = ($obj[9] -split ":")[1]
-							VaultName = ($obj[10] -split ":")[1]
-							VaultSentDate = ($obj[11] -split ":")[1]
-							VaultReturnDate = ($obj[12] -split ":")[1]
-							VaultSlot = ($obj[13] -split ":")[1]
-							VaultSessionID = ($obj[14] -split ":")[1]
+							VolumeGroup      = ($obj[9] -split ":")[1]
+							VaultName        = ($obj[10] -split ":")[1]
+							VaultSentDate    = ($obj[11] -split ":")[1]
+							VaultReturnDate  = ($obj[12] -split ":")[1]
+							VaultSlot        = ($obj[13] -split ":")[1]
+							VaultSessionID   = ($obj[14] -split ":")[1]
 							VaultContainerID = ($obj[15] -split ":")[1]
-							CreatedDate = ($obj[16] -split ":")[1]
-							AssignedDate = ($obj[17] -split ":")[1]
-							FirstMountDate = ($obj[18] -split ":")[1]
-							ExpirationDate = ($obj[19] -split ":")[1]
-							NumberOfMounts = ($obj[20] -split ":")[1]
+							CreatedDate      = ($obj[16] -split ":")[1]
+							AssignedDate     = ($obj[17] -split ":")[1]
+							FirstMountDate   = ($obj[18] -split ":")[1]
+							ExpirationDate   = ($obj[19] -split ":")[1]
+							NumberOfMounts   = ($obj[20] -split ":")[1]
 							MacMountsAllowed = ($obj[21] -split ":")[1]
-							Status = ($obj[22] -split ":")[1]
+							Status           = ($obj[22] -split ":")[1]
 						}#new-Object
 					}#foreach
 				}#FOREACH ($RobotNo in $RobotNumber)
@@ -869,25 +877,25 @@ MediaID          : DD0005
 				foreach ($obj in $OutputInfo) {
 					$obj = $obj -split ","
 					New-Object -TypeName PSObject -Property @{
-						MediaID = ($obj[0] -split ":")[1]
-						MediaType = ($obj[1] -split ":")[1]
-						Barcode = ($obj[2] -split ":")[1]
+						MediaID          = ($obj[0] -split ":")[1]
+						MediaType        = ($obj[1] -split ":")[1]
+						Barcode          = ($obj[2] -split ":")[1]
 						MediaDescription = ($obj[3] -split ":")[1]
-						VolumePool = ($obj[4] -split ":")[1]
-						RobotType = ($obj[5] -split ":")[1]
-						VolumeGroup = ($obj[6] -split ":")[1]
-						VaultName = ($obj[7] -split ":")[1]
-						VaultSentDate = ($obj[8] -split ":")[1]
-						VaultReturnDate = ($obj[9] -split ":")[1]
-						VaultSlot = ($obj[10] -split ":")[1]
-						VaultSessionID = ($obj[11] -split ":")[1]
+						VolumePool       = ($obj[4] -split ":")[1]
+						RobotType        = ($obj[5] -split ":")[1]
+						VolumeGroup      = ($obj[6] -split ":")[1]
+						VaultName        = ($obj[7] -split ":")[1]
+						VaultSentDate    = ($obj[8] -split ":")[1]
+						VaultReturnDate  = ($obj[9] -split ":")[1]
+						VaultSlot        = ($obj[10] -split ":")[1]
+						VaultSessionID   = ($obj[11] -split ":")[1]
 						VaultContainerID = ($obj[12] -split ":")[1]
-						CreatedDate = ($obj[13] -split ":")[1]
-						AssignedDate = ($obj[14] -split ":")[1]
-						LastMountedDate = ($obj[15] -split ":")[1]
-						FirstMount = ($obj[16] -split ":")[1]
-						ExpirationDate = ($obj[17] -split ":")[1]
-						NumberOfMounts = ($obj[18] -split ":")[1]
+						CreatedDate      = ($obj[13] -split ":")[1]
+						AssignedDate     = ($obj[14] -split ":")[1]
+						LastMountedDate  = ($obj[15] -split ":")[1]
+						FirstMount       = ($obj[16] -split ":")[1]
+						ExpirationDate   = ($obj[17] -split ":")[1]
+						NumberOfMounts   = ($obj[18] -split ":")[1]
 						MacMountsAllowed = ($obj[19] -split ":")[1]
 					}#new-Object
 				}#foreach
@@ -915,25 +923,25 @@ MediaID          : DD0005
 						$OutputInfo = $OutputInfo -split ","
 
 						New-Object -TypeName PSObject -Property @{
-							MediaID = ($OutputInfo[0] -split ":")[1]
-							MediaType = ($OutputInfo[1] -split ":")[1]
-							Barcode = ($OutputInfo[2] -split ":")[1]
+							MediaID          = ($OutputInfo[0] -split ":")[1]
+							MediaType        = ($OutputInfo[1] -split ":")[1]
+							Barcode          = ($OutputInfo[2] -split ":")[1]
 							MediaDescription = ($OutputInfo[3] -split ":")[1]
-							VolumePool = ($OutputInfo[4] -split ":")[1]
-							RobotType = ($OutputInfo[5] -split ":")[1]
-							VolumeGroup = ($OutputInfo[6] -split ":")[1]
-							VaultName = ($OutputInfo[7] -split ":")[1]
-							VaultSentDate = ($OutputInfo[8] -split ":")[1]
-							VaultReturnDate = ($OutputInfo[9] -split ":")[1]
-							VaultSlot = ($OutputInfo[10] -split ":")[1]
-							VaultSessionID = ($OutputInfo[11] -split ":")[1]
+							VolumePool       = ($OutputInfo[4] -split ":")[1]
+							RobotType        = ($OutputInfo[5] -split ":")[1]
+							VolumeGroup      = ($OutputInfo[6] -split ":")[1]
+							VaultName        = ($OutputInfo[7] -split ":")[1]
+							VaultSentDate    = ($OutputInfo[8] -split ":")[1]
+							VaultReturnDate  = ($OutputInfo[9] -split ":")[1]
+							VaultSlot        = ($OutputInfo[10] -split ":")[1]
+							VaultSessionID   = ($OutputInfo[11] -split ":")[1]
 							VaultContainerID = ($OutputInfo[12] -split ":")[1]
-							CreatedDate = ($OutputInfo[13] -split ":")[1]
-							AssignedDate = ($OutputInfo[14] -split ":")[1]
-							LastMounted = ($OutputInfo[15] -split ":")[1]
-							FirstMount = ($OutputInfo[16] -split ":")[1]
-							ExpirationDate = ($OutputInfo[17] -split ":")[1]
-							NumberOfMounts = ($OutputInfo[18] -split ":")[1]
+							CreatedDate      = ($OutputInfo[13] -split ":")[1]
+							AssignedDate     = ($OutputInfo[14] -split ":")[1]
+							LastMounted      = ($OutputInfo[15] -split ":")[1]
+							FirstMount       = ($OutputInfo[16] -split ":")[1]
+							ExpirationDate   = ($OutputInfo[17] -split ":")[1]
+							NumberOfMounts   = ($OutputInfo[18] -split ":")[1]
 							MacMountsAllowed = ($OutputInfo[19] -split ":")[1]
 						}#new-Object
 					} CATCH {
@@ -1047,9 +1055,10 @@ OTHER_PROCESSES
 	https://github.com/lazywinadmin/NetBackupPS
 
 	HISTORY
-	1.0 2014/06/01	Initial Version
-	1.1 2014/09/20  Add Errors handling and Verbose
-					Add Blocks BEGIN,PROCESS,END
+	1.0 2014/06/01	 Initial Version
+	1.1 2014/09/20   Add Errors handling and Verbose
+					 Add Blocks BEGIN,PROCESS,END
+    1.1.1 2016/02/24 Reformatted PSObject Constructor - AspenForester
 #>
 	[CmdletBinding()]
 	PARAM (
@@ -1109,12 +1118,12 @@ OTHER_PROCESSES
 						$obj = $obj -split "\s{2,}"
 						New-Object -TypeName PSObject -Property @{
 							ComputerName = $bpps_server
-							Name = $obj[0]
-							Pid = $obj[1]
-							Load = $obj[2]
-							Time = $obj[3]
-							MemMB = $obj[4] -replace "M", ""
-							Start = $obj[5]
+							Name         = $obj[0]
+							Pid          = $obj[1]
+							Load         = $obj[2]
+							Time         = $obj[3]
+							MemMB        = $obj[4] -replace "M", ""
+							Start        = $obj[5]
 						}#New-Object
 					}#Foreach
 				}#FOREACH ($Computer in $ComputerName)
@@ -1129,12 +1138,12 @@ OTHER_PROCESSES
 					$obj = $obj -split "\s{2,}"
 					New-Object -TypeName PSObject -Property @{
 						ComputerName = $bpps_server
-						Name = $obj[0]
-						Pid = $obj[1]
-						Load = $obj[2]
-						Time = $obj[3]
-						MemMB = $obj[4] -replace "M", ""
-						Start = $obj[5]
+						Name         = $obj[0]
+						Pid          = $obj[1]
+						Load         = $obj[2]
+						Time         = $obj[3]
+						MemMB        = $obj[4] -replace "M", ""
+						Start        = $obj[5]
 					}#New-Object
 				}#Foreach
 			}#IF ($ProcessGroup -and -not$ComputerName)
@@ -1150,12 +1159,12 @@ OTHER_PROCESSES
 						$obj = $obj -split "\s{2,}"
 						New-Object -TypeName PSObject -Property @{
 							ComputerName = $bpps_server
-							Name = $obj[0]
-							Pid = $obj[1]
-							Load = $obj[2]
-							Time = $obj[3]
-							MemMB = $obj[4] -replace "M", ""
-							Start = $obj[5]
+							Name         = $obj[0]
+							Pid          = $obj[1]
+							Load         = $obj[2]
+							Time         = $obj[3]
+							MemMB        = $obj[4] -replace "M", ""
+							Start        = $obj[5]
 						}#New-Object
 					}#Foreach
 				}#FOREACH ($Computer in $ComputerName)
@@ -1171,12 +1180,12 @@ OTHER_PROCESSES
 					$obj = $obj -split "\s{2,}"
 					New-Object -TypeName PSObject -Property @{
 						ComputerName = $bpps_server
-						Name = $obj[0]
-						Pid = $obj[1]
-						Load = $obj[2]
-						Time = $obj[3]
-						MemMB = $obj[4] -replace "M", ""
-						Start = $obj[5]
+						Name         = $obj[0]
+						Pid          = $obj[1]
+						Load         = $obj[2]
+						Time         = $obj[3]
+						MemMB        = $obj[4] -replace "M", ""
+						Start        = $obj[5]
 
 					}#New-Object
 				}#Foreach
@@ -1551,6 +1560,8 @@ BuildNumber  : 20120605
 
 	HISTORY
 	1.2 2015/01/22	Initial Version
+    1.1.1 2016/02/24 Reformatted PSObject Constructor 
+                     Edited indention in try/catch structures- AspenForester
 #>
 
 	[CmdletBinding(PositionalBinding = $true)]
@@ -1558,7 +1569,8 @@ BuildNumber  : 20120605
 		[Parameter(Position = 0,
 				   Mandatory = $false,
 				   ValueFromPipelineByPropertyName = $true)]
-		[System.String[]]$ComputerName = 'localhost'
+		[System.String[]]
+        $ComputerName = 'localhost'
 	)
 
 	BEGIN {
@@ -1577,46 +1589,55 @@ BuildNumber  : 20120605
 				$versionFile = "\\$computer\c$\Program Files\Veritas\NetBackup\version.txt"
 
 				Write-Verbose -Message "[$computer] Checking for version file"
-				try {
+				try 
+                    {
 					Test-Path -LiteralPath $versionFile -Type leaf -ErrorAction 'Stop' | Out-Null
-				} catch {
+				    } 
+                catch 
+                {
 					Write-Warning -Message "[$computer][ERROR] - Could not find or access '$versionFile'."
 				} # end try/catch
 
 				Write-Verbose -Message "[$computer] Reading contents of version file"
-				try {
+				try 
+                    {
 					$nbuVersion = Get-Content -LiteralPath $versionFile -ErrorAction 'Stop'
-				} catch {
+				    } 
+                catch 
+                    {
 					Write-Warning -Message "[$computer][ERROR] Could not read '$versionFile'."
-				} # end try/catch
+				    } # end try/catch
 
 				Write-Verbose -Message "[$computer] Gathering version information"
-				try {
+				try 
+                    {
 					$convertDT = ($nbuVersion[2]).substring(12)
 					$convertDT = $convertDT -split ' '
 					[DateTime]$convertDT = "$($convertDT[1]) $($convertDT[2]), $($convertDT[4]) $($convertDT[3])"
 
 					[bool]$convertTest = $true
-				} catch {
+				    } 
+                catch 
+                    {
 					Write-Warning -Message "[$computer][ERROR] Could not properly convert the date and time in the version file. 'ReleaseDate' will not be a proper DateTime property"
 					[bool]$convertTest = $false
-				} # end try/catch
+				    } # end try/catch
 
 				if ($convertTest -eq $true) {
 					$objNbuVersion = [PSCustomObject] @{
 						ComputerName = $computer
-						Hardware = ($nbuversion[0]).substring(9)
-						Version = ($nbuversion[1]).substring(8)
-						ReleaseDate = $convertDT
-						BuildNumber = ($nbuversion[3]).substring(12)
+						Hardware     = ($nbuversion[0]).substring(9)
+						Version      = ($nbuversion[1]).substring(8)
+						ReleaseDate  = $convertDT
+						BuildNumber  = ($nbuversion[3]).substring(12)
 					} # end $objNbuVersion
 				} else {
 					$objNbuVersion = [PSCustomObject] @{
 						ComputerName = $computer
-						Hardware = ($nbuversion[0]).substring(9)
-						Version = ($nbuversion[1]).substring(8)
-						ReleaseDate = ($nbuversion[2]).substring(12)
-						BuildNumber = ($nbuversion[3]).substring(12)
+						Hardware     = ($nbuversion[0]).substring(9)
+						Version      = ($nbuversion[1]).substring(8)
+						ReleaseDate  = ($nbuversion[2]).substring(12)
+						BuildNumber  = ($nbuversion[3]).substring(12)
 					} # end $objNbuVersion
 				} # end if/else $convertTest
 
@@ -1626,10 +1647,10 @@ BuildNumber  : 20120605
 				Write-Warning -Message "[$computer][ERROR] Unreachable via Ping"
 				$objNbuVersion = [PSCustomObject] @{
 					ComputerName = $computer
-					Hardware = '[ERROR] - Unreachable via Ping'
-					Version = 'N/A'
-					ReleaseDate = 'N/A'
-					BuildNumber = 'N/A'
+					Hardware     = '[ERROR] - Unreachable via Ping'
+					Version      = 'N/A'
+					ReleaseDate  = 'N/A'
+					BuildNumber  = 'N/A'
 				} # end $objNbuVersion
 
 				$objNbuVersion
