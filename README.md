@@ -1,13 +1,11 @@
-NetBackupPS
-===========
+**This module is not longer maintained**, feel free to branch out/fork or submit Pull request
 
+# NetBackupPS
 PowerShell module for Symantec NetBackup
 
 This module contains PowerShell Cmdlets built around the Symantec NetBackup CLI tools
 
-
-ToDo
-=====
+# ToDo
 - [x] Get-NetBackupClient
 - [x] Get-NetBackupDiskMedia
 - [x] Get-NetBackupGlobalConfiguration
